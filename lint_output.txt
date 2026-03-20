@@ -1,0 +1,116 @@
+
+> husoon@0.1.0 lint
+> eslint
+
+
+C:\Users\Mohamed\Documents\GitHub\husoon\src\app\page.tsx
+   8:10  warning  'Button' is defined but never used           @typescript-eslint/no-unused-vars
+  11:3   warning  'LogOut' is defined but never used           @typescript-eslint/no-unused-vars
+  12:3   warning  'CheckCircle2' is defined but never used     @typescript-eslint/no-unused-vars
+  13:3   warning  'Trophy' is defined but never used           @typescript-eslint/no-unused-vars
+  14:3   warning  'Timer' is defined but never used            @typescript-eslint/no-unused-vars
+  15:3   warning  'CalendarDays' is defined but never used     @typescript-eslint/no-unused-vars
+  25:11  warning  'logout' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  41:14  warning  'error' is defined but never used            @typescript-eslint/no-unused-vars
+
+C:\Users\Mohamed\Documents\GitHub\husoon\src\app\schedule\page.tsx
+  8:10  warning  'Button' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\Mohamed\Documents\GitHub\husoon\src\app\settings\page.tsx
+   6:10  warning  'Button' is defined but never used               @typescript-eslint/no-unused-vars
+  11:17  warning  'Lightbulb' is defined but never used            @typescript-eslint/no-unused-vars
+  11:28  warning  'Moon' is defined but never used                 @typescript-eslint/no-unused-vars
+  11:81  warning  'Check' is defined but never used                @typescript-eslint/no-unused-vars
+  16:25  warning  'permission' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  50:14  warning  'error' is defined but never used                @typescript-eslint/no-unused-vars
+  70:14  warning  'error' is defined but never used                @typescript-eslint/no-unused-vars
+  87:14  warning  'error' is defined but never used                @typescript-eslint/no-unused-vars
+
+C:\Users\Mohamed\Documents\GitHub\husoon\src\app\timer\page.tsx
+   8:10  warning  'Button' is defined but never used           @typescript-eslint/no-unused-vars
+   9:10  warning  'ChevronRight' is defined but never used     @typescript-eslint/no-unused-vars
+   9:24  warning  'LogOut' is defined but never used           @typescript-eslint/no-unused-vars
+  17:9   warning  'router' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\Mohamed\Documents\GitHub\husoon\src\components\layout\Sidebar.tsx
+  70:38  error  Parsing error: Invalid character
+
+C:\Users\Mohamed\Documents\GitHub\husoon\src\components\schedule\WeekView.tsx
+  26:30  warning  'dayOfWeek' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\Mohamed\Documents\GitHub\husoon\src\components\stats\ActivityChart.tsx
+  17:5  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\Mohamed\Documents\GitHub\husoon\src\components\stats\ActivityChart.tsx:17:5
+  15 |
+  16 |   useEffect(() => {
+> 17 |     setMounted(true);
+     |     ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  18 |   }, []);
+  19 |
+  20 |   // Generate last 15 days data  react-hooks/set-state-in-effect
+
+C:\Users\Mohamed\Documents\GitHub\husoon\src\components\timer\TaskSelector.tsx
+  5:10  warning  'Card' is defined but never used         @typescript-eslint/no-unused-vars
+  5:16  warning  'CardContent' is defined but never used  @typescript-eslint/no-unused-vars
+  6:24  warning  'Circle' is defined but never used       @typescript-eslint/no-unused-vars
+
+C:\Users\Mohamed\Documents\GitHub\husoon\src\components\timer\TimerDisplay.tsx
+  4:10  warning  'Button' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\Mohamed\Documents\GitHub\husoon\src\hooks\useNotifications.ts
+  26:7  error  Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+C:\Users\Mohamed\Documents\GitHub\husoon\src\hooks\useNotifications.ts:26:7
+  24 |   useEffect(() => {
+  25 |     if (typeof window !== 'undefined' && 'Notification' in window) {
+> 26 |       checkSubscription();
+     |       ^^^^^^^^^^^^^^^^^ Avoid calling setState() directly within an effect
+  27 |     }
+  28 |   }, []);
+  29 |  react-hooks/set-state-in-effect
+
+C:\Users\Mohamed\Documents\GitHub\husoon\src\lib\appwrite\auth.ts
+   1:14  warning  'Query' is defined but never used         @typescript-eslint/no-unused-vars
+  26:21  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  32:22  warning  'retryError' is defined but never used    @typescript-eslint/no-unused-vars
+  52:14  warning  'error' is defined but never used         @typescript-eslint/no-unused-vars
+
+C:\Users\Mohamed\Documents\GitHub\husoon\src\lib\appwrite\init-database.ts
+    1:29  warning  'ID' is defined but never used            @typescript-eslint/no-unused-vars
+   88:17  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   98:17  warning  'key' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  105:18  warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
+  111:19  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  144:26  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  155:19  error    Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+C:\Users\Mohamed\Documents\GitHub\husoon\src\lib\husoon\calculator.ts
+  2:10  warning  'format' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\Mohamed\Documents\GitHub\husoon\src\lib\husoon\engine.ts
+  1:45  warning  'TaskType' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\Mohamed\Documents\GitHub\husoon\src\providers\AppwriteProvider.tsx
+  24:16  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\Mohamed\Documents\GitHub\husoon\src\proxy.ts
+  11:23  warning  'request' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\Mohamed\Documents\GitHub\husoon\src\stores\timerStore.ts
+  26:11  warning  'get' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 45 problems (8 errors, 37 warnings)
+

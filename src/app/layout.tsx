@@ -7,6 +7,7 @@ import { AuthGuard } from "@/providers/AuthGuard";
 import { Toaster } from 'sonner';
 import { MobileNav } from '@/components/layout/MobileNav';
 import { Navbar } from '@/components/layout/Navbar';
+import { Sidebar } from '@/components/layout/Sidebar';
 
 const cairo = Cairo({
   subsets: ["arabic"],
@@ -36,8 +37,11 @@ export default function RootLayout({
         <QueryProvider>
           <AppwriteProvider>
             <AuthGuard>
+              <Sidebar />
               <Navbar />
-              {children}
+              <div className="md:mr-64 pt-20">
+                {children}
+              </div>
               <MobileNav />
               <Toaster richColors position="top-center" />
             </AuthGuard>

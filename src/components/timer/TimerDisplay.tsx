@@ -47,93 +47,87 @@ export function TimerDisplay({ onComplete }: TimerDisplayProps) {
   const isWarning = secondsRemaining > 0 && secondsRemaining < 120; // Last 2 minutes
 
   return (
-    <div className="flex flex-col items-center justify-center space-y-8 py-10">
-      <div className="text-center space-y-2">
-        <h2 className="text-2xl font-serif font-bold text-primary">
-          {selectedTaskName || 'لم يتم اختيار مهمة'}
-        </h2>
-        <p className="text-muted-foreground">حافظ على تركيزك في رحاب الآيات</p>
-      </div>
-
-      <div className="relative flex items-center justify-center w-64 h-64 md:w-80 md:h-80">
-        {/* Progress Circle */}
-        <svg className="w-full h-full -rotate-90">
-          <circle
-            cx="50%"
-            cy="50%"
-            r="48%"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="4"
-            className="text-muted/20"
-          />
-          <circle
-            cx="50%"
-            cy="50%"
-            r="48%"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="6"
-            strokeDasharray="301.6%"
-            strokeDashoffset={`${301.6 - (301.6 * progress) / 100}%`}
-            strokeLinecap="round"
-            className={`transition-all duration-1000 ease-linear ${
-              isWarning ? 'text-destructive' : 'text-primary'
-            }`}
-          />
+    <div className="relative group w-full flex flex-col items-center">
+      {/* Spiritual Glow Effect */}
+      <div className="absolute inset-0 bg-emerald-100 blur-[80px] opacity-30 rounded-full animate-pulse z-0 pointer-events-none scale-75"></div>
+      
+      {/* Circular Timer Visual */}
+      <div className="relative w-72 h-72 md:w-[420px] md:h-[420px] rounded-full bg-surface-container-lowest border-12 border-surface-container-low flex items-center justify-center shadow-2xl shadow-emerald-900/5 z-10 transition-transform">
+        {/* Progress Ring */}
+        <svg className="absolute inset-0 w-full h-full -rotate-90">
+          <circle className="text-secondary/10" cx="50%" cy="50%" fill="transparent" r="46%" stroke="currentColor" strokeWidth="12"></circle>
+          <circle 
+            className={`transition-all duration-1000 ease-linear ${isWarning ? 'text-error' : 'text-secondary'}`} 
+            cx="50%" 
+            cy="50%" 
+            fill="transparent" 
+            r="46%" 
+            stroke="currentColor" 
+            strokeDasharray="289%"
+            strokeDashoffset={`${289 - (289 * progress) / 100}%`}
+            strokeLinecap="round" 
+            strokeWidth="12"
+          ></circle>
         </svg>
 
-        {/* Time Display */}
-        <div className="absolute inset-0 flex flex-col items-center justify-center space-y-1">
-          <span className={`text-6xl md:text-7xl font-mono font-bold tracking-tighter ${
-            isWarning ? 'text-destructive animate-pulse' : 'text-foreground'
-          }`}>
-            {formatTime(secondsRemaining)}
-          </span>
-          <span className="text-sm font-medium text-muted-foreground uppercase tracking-widest">
-            {isRunning ? 'جاري الحساب' : isPaused ? 'متوقف مؤقتاً' : 'جاهز'}
-          </span>
+        <div className="text-center z-10 w-full px-8">
+          <span className="font-sans text-emerald-800/40 text-sm tracking-[0.2em] mb-2 block uppercase">الوقت المتبقي</span>
+          <div className={`font-serif text-6xl md:text-8xl font-bold flex justify-center items-center gap-2 ${isWarning ? 'text-error animate-pulse' : 'text-emerald-900'}`}>
+            <span>{formatTime(secondsRemaining).split(':')[0]}</span>
+            <span className="text-secondary animate-pulse">:</span>
+            <span>{formatTime(secondsRemaining).split(':')[1]}</span>
+          </div>
+          <div className="mt-6 flex flex-col items-center">
+            <span className="font-sans text-secondary font-bold text-lg mb-1 truncate w-full px-4">
+              {selectedTaskName || 'لم يتم اختيار مهمة'}
+            </span>
+            <span className="font-sans text-emerald-800/40 text-xs uppercase tracking-widest">
+              {isRunning ? 'جاري التركيز' : isPaused ? 'متوقف مؤقتاً' : 'جاهز للبدء'}
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* Controls */}
-      <div className="flex items-center gap-6">
-        <Button 
-          variant="outline" 
-          size="icon" 
-          className="h-14 w-14 rounded-full border-primary/20 hover:bg-primary/5"
+      {/* Timer Controls Floating */}
+      <div className="-mt-8 flex items-center gap-4 z-20 bg-background/50 backdrop-blur-md rounded-full px-2 py-1 shadow-sm">
+        <button 
           onClick={reset}
+          className="w-14 h-14 rounded-full bg-surface-container-highest text-emerald-900 flex items-center justify-center hover:bg-surface-container-high transition-all"
         >
-          <RotateCcw className="w-6 h-6" />
-        </Button>
+          <RotateCcw className="w-5 h-5" />
+        </button>
 
         {!isRunning ? (
-          <Button 
-            size="icon" 
-            className="h-20 w-20 rounded-full bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20"
-            onClick={start}
+          <button 
             disabled={secondsRemaining === 0}
+            onClick={start}
+            className="w-20 h-20 rounded-full bg-linear-to-br from-primary to-primary-container text-white flex items-center justify-center shadow-xl shadow-emerald-950/30 hover:scale-105 transition-transform disabled:opacity-50"
           >
-            <Play className="w-10 h-10 fill-current ml-1" />
-          </Button>
+            <Play className="w-8 h-8 fill-current ml-1" />
+          </button>
         ) : (
-          <Button 
-            size="icon" 
-            className="h-20 w-20 rounded-full bg-secondary hover:bg-secondary/90 shadow-lg shadow-secondary/20"
+          <button 
             onClick={pause}
+            className="w-20 h-20 rounded-full bg-linear-to-br from-primary to-primary-container text-white flex items-center justify-center shadow-xl shadow-emerald-950/30 hover:scale-105 transition-transform"
           >
-            <Pause className="w-10 h-10 fill-current" />
-          </Button>
+            <Pause className="w-8 h-8 fill-current" />
+          </button>
         )}
 
-        <Button 
-          variant="outline" 
-          size="icon" 
-          className="h-14 w-14 rounded-full border-primary/20 hover:bg-primary/5"
-          onClick={() => { if(onComplete) onComplete() }}
+        <button 
+          onClick={() => { if(onComplete) onComplete(); }}
+          className="w-14 h-14 rounded-full bg-surface-container-highest text-emerald-900 flex items-center justify-center hover:bg-surface-container-high transition-all"
         >
           <CheckCircle2 className="w-6 h-6" />
-        </Button>
+        </button>
+      </div>
+
+      {/* Focus Quote */}
+      <div className="text-center max-w-md mt-12 px-4">
+        <p className="font-serif text-2xl text-emerald-800 italic leading-relaxed">
+          &quot;خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ&quot;
+        </p>
+        <p className="font-sans text-sm text-emerald-800/40 mt-3">— حديث شريف</p>
       </div>
     </div>
   );

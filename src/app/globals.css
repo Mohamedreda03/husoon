@@ -10,6 +10,54 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-cairo), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-amiri), ui-serif, Georgia, serif;
+  
+  --color-surface-container-highest: #e5e2dc;
+  --color-surface-container: #f0eee8;
+  --color-on-secondary-container: #785210;
+  --color-primary-fixed: #b2efdf;
+  --color-on-tertiary-container: #d4c3a2;
+  --color-surface-bright: #fcf9f3;
+  --color-surface-container-low: #f6f3ed;
+  --color-tertiary-fixed-dim: #d6c5a4;
+  --color-on-error-container: #93000a;
+  --color-primary-container: #1e5b4f;
+  --color-inverse-surface: #31312d;
+  --color-surface-variant: #e5e2dc;
+  --color-error: #ba1a1a;
+  --color-secondary-container: #fdc97d;
+  --color-outline-variant: #bfc9c4;
+  --color-on-secondary: #ffffff;
+  --color-on-tertiary-fixed-variant: #51452c;
+  --color-on-primary-container: #95d1c1;
+  --color-on-surface: #1c1c18;
+  --color-surface: #fcf9f3;
+  --color-on-tertiary-fixed: #231a06;
+  --color-on-tertiary: #ffffff;
+  --color-primary: #004338;
+  --color-on-secondary-fixed: #291800;
+  --color-secondary: #7d5715;
+  --color-on-primary-fixed-variant: #0f5044;
+  --color-surface-tint: #2d685c;
+  --color-secondary-fixed: #ffddb1;
+  --color-on-primary: #ffffff;
+  --color-primary-fixed-dim: #97d2c3;
+  --color-tertiary: #443921;
+  --color-inverse-primary: #97d2c3;
+  --color-error-container: #ffdad6;
+  --color-surface-dim: #dcdad4;
+  --color-surface-container-high: #ebe8e2;
+  --color-on-surface-variant: #404946;
+  --color-on-secondary-fixed-variant: #624000;
+  --color-on-background: #1c1c18;
+  --color-outline: #707976;
+  --color-on-primary-fixed: #00201a;
+  --color-tertiary-fixed: #f3e0be;
+  --color-surface-container-lowest: #ffffff;
+  --color-on-error: #ffffff;
+  --color-inverse-on-surface: #f3f0ea;
+  --color-tertiary-container: #5c5036;
+  --color-secondary-fixed-dim: #f1be73;
+
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -32,9 +80,7 @@
   --color-muted-foreground: var(--muted-foreground);
   --color-muted: var(--muted);
   --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
   --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
   --color-popover-foreground: var(--popover-foreground);
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
@@ -49,52 +95,45 @@
 }
 
 :root {
-  /* Warm Islamic Cream Background */
-  --background: oklch(0.98 0.01 70); 
-  --foreground: oklch(0.25 0.05 140); /* Deep Green-Black */
+  --background: #fcf9f3;
+  --foreground: #1c1c18;
   
-  --card: oklch(1 0.005 70);
-  --card-foreground: oklch(0.25 0.05 140);
+  --card: #ffffff;
+  --card-foreground: #1c1c18;
   
-  --popover: oklch(1 0.005 70);
-  --popover-foreground: oklch(0.25 0.05 140);
+  --popover: #ffffff;
+  --popover-foreground: #1c1c18;
   
-  /* Emerald Green */
-  --primary: oklch(0.45 0.12 165); 
-  --primary-foreground: oklch(0.98 0.01 165);
+  --primary-foreground: #ffffff;
+  --secondary-foreground: #ffffff;
   
-  /* Deep Gold / Ochre */
-  --secondary: oklch(0.65 0.18 70); 
-  --secondary-foreground: oklch(0.98 0.01 70);
+  --muted: #f6f3ed;
+  --muted-foreground: #404946;
   
-  --muted: oklch(0.95 0.02 165);
-  --muted-foreground: oklch(0.45 0.05 165);
+  --accent: #fdc97d; 
+  --accent-foreground: #785210;
   
-  --accent: oklch(0.92 0.03 70); /* Light Gold Tint */
-  --accent-foreground: oklch(0.45 0.12 165);
+  --destructive: #ba1a1a;
+  --border: #707976;
+  --input: #bfc9c4;
+  --ring: #004338;
   
-  --destructive: oklch(0.55 0.22 25);
-  --border: oklch(0.9 0.02 165);
-  --input: oklch(0.9 0.02 165);
-  --ring: oklch(0.45 0.12 165);
-  
-  --chart-1: oklch(0.45 0.12 165);
-  --chart-2: oklch(0.65 0.18 70);
+  --chart-1: #004338;
+  --chart-2: #7d5715;
   
   --radius: 0.75rem;
   
-  /* Font Variables */
   --font-amiri: 'Amiri', serif;
   --font-cairo: 'Cairo', sans-serif;
 }
 
-/* Force light mode variables as requested */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: oklch(0.98 0.01 70); 
-    --foreground: oklch(0.25 0.05 140);
+    --background: #fcf9f3;
+    --foreground: #1c1c18;
   }
 }
+
 
 @layer base {
   * {

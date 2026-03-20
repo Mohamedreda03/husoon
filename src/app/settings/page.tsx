@@ -4,27 +4,26 @@ import { useUser } from '@/hooks/useUser';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useTodayPlan } from '@/hooks/useTodayPlan';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ChevronRight, Bell, Settings as SettingsIcon, LogOut, Trash2, BookOpen, Download, AlertTriangle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { updateUserProfile, getUserLogs } from '@/lib/appwrite/database';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { 
+  User as UserIcon, 
+  Settings as SettingsIcon, 
+  Bell, 
+  Shield, 
+  Database, 
+  Trash2, 
+  LogOut, 
+  ChevronLeft,
+  ChevronRight,
+  ShieldAlert,
+  Save,
+  Edit2,
+  BookOpen,
+  Download
+} from 'lucide-react';
 
 export default function SettingsPage() {
   const { user, logout, isLoading: isUserLoading } = useUser();
@@ -43,8 +42,8 @@ export default function SettingsPage() {
     }
   }, [profile]);
 
-  const handleNotificationToggle = async (checked: boolean) => {
-    if (checked) {
+  const handleNotificationToggle = async () => {
+    if (!isSubscribed) {
       const granted = await requestPermission();
       if (granted) {
         await subscribe();
@@ -63,8 +62,8 @@ export default function SettingsPage() {
         pagesPerDay: Number(pagesPerDay),
       });
       toast.success('تم تحديث بيانات الحفظ بنجاح ✅');
-    } catch (error) {
-      toast.error('حدث خطأ أثناء حفظ البيانات');
+    } catch {
+      toast.error('فشل في حفظ الإعدادات');
     } finally {
       setIsSaving(false);
     }
@@ -90,6 +89,8 @@ export default function SettingsPage() {
 
   const handleResetProgress = async () => {
     if (!profile) return;
+    if (!window.confirm("ستفقد جميع بيانات الحفظ الخاصة بك. هل أنت متأكد؟")) return;
+    
     try {
       await updateUserProfile(profile.$id, {
         pagesDone: 0,
@@ -112,133 +113,140 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-12 text-right" dir="rtl">
-      <main className="container mx-auto px-4 mt-8 space-y-6 max-w-3xl">
-        {/* Memorization Progress */}
-        <Card className="border-primary/10">
-          <CardHeader>
-            <CardTitle className="text-lg font-serif font-bold text-primary flex items-center gap-2">
-              <BookOpen className="w-5 h-5" />
-              بيانات الحفظ
-            </CardTitle>
-            <CardDescription>تحكم في تقدمك ووتيرة حفظك اليومية</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="pagesDone">الصفحات المحفوظة حالياً</Label>
-                <Input 
-                  id="pagesDone" 
-                  type="number" 
-                  value={pagesDone} 
-                  onChange={(e) => setPagesDone(Number(e.target.value))}
-                  min={0}
-                  max={604}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="pagesPerDay">وتيرة الحفظ (صفحة/يوم)</Label>
-                <Select value={pagesPerDay.toString()} onValueChange={(v) => setPagesPerDay(Number(v))}>
-                  <SelectTrigger id="pagesPerDay">
-                    <SelectValue placeholder="اختر الوتيرة" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="0.5">نصف صفحة</SelectItem>
-                    <SelectItem value="1">صفحة واحدة</SelectItem>
-                    <SelectItem value="2">صفحتان</SelectItem>
-                    <SelectItem value="3">ثلاث صفحات</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <Button onClick={handleSaveProgress} disabled={isSaving} className="w-full sm:w-auto">
-              {isSaving ? 'جاري الحفظ...' : 'حفظ التغييرات'}
-            </Button>
-          </CardContent>
-        </Card>
+    <div className="min-h-screen bg-background text-right" dir="rtl">
+      <main className="py-12 px-6 md:px-16 min-h-screen">
+        <div className="max-w-4xl mx-auto mt-8">
+          {/* Page Title */}
+          <div className="mb-12">
+            <h2 className="font-serif text-4xl text-primary font-bold">الإعدادات</h2>
+            <p className="font-sans text-on-surface-variant mt-2">قم بتخصيص تجربتك في حفظ القرآن الكريم</p>
+          </div>
 
-        {/* Notifications */}
-        <Card className="border-primary/10">
-          <CardHeader>
-            <CardTitle className="text-lg font-serif font-bold text-primary flex items-center gap-2">
-              <Bell className="w-5 h-5" />
-              تنبيهات الحفظ
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div className="space-y-0.5">
-                <Label className="text-base">إشعارات المتصفح</Label>
-                <p className="text-sm text-muted-foreground">تلقي تنبيهات يومية على هذا الجهاز</p>
-              </div>
-              <Switch checked={isSubscribed} onCheckedChange={handleNotificationToggle} />
-            </div>
-          </CardContent>
-        </Card>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            {/* Left Column (RTL: actually right column conceptually but visually based on grid) */}
+            <div className="lg:col-span-1 space-y-6">
+              {/* Profile Section */}
+              <section className="bg-surface-container-low rounded-xl p-8 text-center space-y-4 shadow-sm border border-primary/5">
+                <div className="relative inline-block">
+                  <div className="w-32 h-32 rounded-full border-4 border-surface-container-lowest bg-primary/10 flex flex-col items-center justify-center text-primary mx-auto">
+                    <span className="font-serif text-4xl font-bold">{user?.name?.charAt(0) || 'م'}</span>
+                  </div>
+                  <button className="absolute bottom-1 left-1 bg-primary text-white p-2 rounded-full shadow-lg hover:bg-emerald-700 transition-colors">
+                    <Edit2 className="w-4 h-4" />
+                  </button>
+                </div>
+                <div>
+                  <h3 className="font-sans font-bold text-xl text-primary">{user?.name || 'مستخدم'}</h3>
+                  <p className="font-sans text-sm text-on-surface-variant">{user?.email}</p>
+                </div>
+                <div className="pt-4 flex justify-center">
+                  <span className="px-4 py-1 bg-secondary-container text-on-secondary-container text-xs rounded-full font-bold inline-block">
+                    حافظ لـ {Math.floor(pagesDone / 20)} جزء
+                  </span>
+                </div>
+              </section>
 
-        {/* Data Management */}
-        <Card className="border-primary/10">
-          <CardHeader>
-            <CardTitle className="text-lg font-serif font-bold text-primary flex items-center gap-2">
-              <Download className="w-5 h-5" />
-              إدارة البيانات
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-sm text-muted-foreground">تنزيل نسخة احتياطية من كافة سجلاتك وحفظك بصيغة JSON.</p>
-            <Button variant="outline" onClick={handleExportData} className="gap-2">
-              <Download className="w-4 h-4" />
-              تصدير بياناتي
-            </Button>
-          </CardContent>
-        </Card>
+              {/* Data Export / Actions */}
+              <section className="bg-surface-container-low rounded-xl p-6 space-y-4 shadow-sm border border-primary/5">
+                <h4 className="font-sans font-bold text-sm text-primary">إجراءات سريعة</h4>
+                <div className="space-y-3">
+                  <button onClick={handleExportData} className="w-full flex items-center justify-between p-3 rounded-lg border border-primary/10 bg-surface hover:bg-surface-container transition-all">
+                    <span className="font-sans text-sm font-medium flex items-center gap-2">
+                       <Download className="w-4 h-4" />
+                       تصدير بياناتي
+                    </span>
+                  </button>
+                  <button onClick={() => logout()} className="w-full flex items-center justify-between p-3 rounded-lg border border-error/20 bg-error/5 text-error hover:bg-error/10 transition-all">
+                    <span className="font-sans text-sm font-bold flex items-center gap-2">
+                       <LogOut className="w-4 h-4" />
+                       تسجيل الخروج
+                    </span>
+                  </button>
+                </div>
+              </section>
 
-        {/* Danger Zone */}
-        <Card className="border-destructive/20 bg-destructive/5">
-          <CardHeader>
-            <CardTitle className="text-lg font-serif font-bold text-destructive flex items-center gap-2">
-              <AlertTriangle className="w-5 h-5" />
-              منطقة الخطر
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <div className="space-y-0.5">
-                <p className="font-bold">إعادة تعيين التقدم</p>
-                <p className="text-xs text-muted-foreground">سيتم تصفير عدد الصفحات والـ Streak. لن يتم حذف السجلات السابقة.</p>
-              </div>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="destructive" size="sm" className="gap-2">
-                    <Trash2 className="w-4 h-4" />
-                    إعادة تعيين
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent dir="rtl">
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>هل أنت متأكد تماماً؟</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      هذا الإجراء سيقوم بتصفير تقدمك الحالي في الحفظ. لن تتمكن من التراجع عن هذا الإجراء لاحقاً.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter className="gap-2">
-                    <AlertDialogCancel>إلغاء</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleResetProgress} className="bg-destructive hover:bg-destructive/90">
-                      نعم، أعد التعيين
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
             </div>
 
-            <div className="pt-4 border-t border-destructive/10">
-              <Button variant="ghost" onClick={() => logout()} className="text-muted-foreground hover:text-destructive w-full justify-start gap-2">
-                <LogOut className="w-4 h-4" />
-                تسجيل الخروج من الحساب
-              </Button>
+            {/* Right Column (RTL: main content) */}
+            <div className="lg:col-span-2 space-y-8">
+              {/* Plan Settings */}
+              <section className="bg-surface-container-low rounded-xl p-8 space-y-8 shadow-sm border border-primary/5">
+                <div className="flex items-center gap-3 text-primary border-b border-surface-variant pb-4">
+                  <BookOpen className="w-6 h-6" />
+                  <h3 className="font-sans font-bold text-lg">إعدادات الخطة والحفظ</h3>
+                </div>
+                
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <label className="font-sans text-sm font-medium text-on-surface-variant px-1">الصفحات المحفوظة حالياً</label>
+                    <input 
+                      type="number"
+                      value={pagesDone}
+                      onChange={(e) => setPagesDone(Number(e.target.value))}
+                      className="w-full h-14 px-4 bg-surface-container-lowest rounded-xl border border-primary/10 focus:ring-2 focus:ring-primary font-sans text-on-surface transition-all outline-none"
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <label className="font-sans text-sm font-medium text-on-surface-variant px-1">المعدل اليومي للحفظ</label>
+                    <select 
+                      value={pagesPerDay.toString()}
+                      onChange={(e) => setPagesPerDay(Number(e.target.value))}
+                      className="w-full h-14 px-4 bg-surface-container-lowest rounded-xl border border-primary/10 focus:ring-2 focus:ring-primary font-sans text-on-surface transition-all outline-none"
+                    >
+                      <option value="0.5">نصف صفحة يومياً</option>
+                      <option value="1">صفحة واحدة يومياً</option>
+                      <option value="2">صفحتان يومياً</option>
+                      <option value="3">ثلاث صفحات يومياً</option>
+                    </select>
+                  </div>
+                </div>
+              </section>
+
+              {/* Account Management & Notifications */}
+              <section className="bg-surface-container-low rounded-xl p-8 space-y-8 shadow-sm border border-primary/5">
+                <div className="flex items-center gap-3 text-primary border-b border-surface-variant pb-4">
+                  <Bell className="w-6 h-6" />
+                  <h3 className="font-sans font-bold text-lg">تنبيهات وإدارة الحساب</h3>
+                </div>
+                
+                <div className="space-y-6">
+                  <div className="flex items-center justify-between p-4 bg-surface-container-lowest rounded-xl border border-primary/10">
+                    <div>
+                      <h4 className="font-sans font-bold text-sm">إشعارات المتصفح</h4>
+                      <p className="text-xs text-muted-foreground mt-1">تلقي تنبيهات يومية بموعد المراجعة</p>
+                    </div>
+                    <button 
+                      onClick={handleNotificationToggle}
+                      className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${isSubscribed ? 'bg-primary' : 'bg-surface-variant'}`}
+                    >
+                      <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isSubscribed ? '-translate-x-6' : '-translate-x-1'}`} />
+                    </button>
+                  </div>
+                </div>
+
+                <div className="pt-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+                  <button 
+                    onClick={handleResetProgress}
+                    className="text-error font-sans font-bold text-sm hover:underline flex items-center gap-1"
+                  >
+                    <ShieldAlert className="w-4 h-4" />
+                    إعادة تعيين التقدم
+                  </button>
+                  <button 
+                    onClick={handleSaveProgress}
+                    disabled={isSaving}
+                    className="w-full sm:w-auto px-8 py-3 bg-primary text-white font-sans font-bold rounded-xl shadow-lg hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                  >
+                    {isSaving ? '...جاري الحفظ' : 'حفظ التغييرات'}
+                  </button>
+                </div>
+              </section>
+
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </main>
     </div>
   );

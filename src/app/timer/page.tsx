@@ -33,23 +33,51 @@ export default function TimerPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background pb-10">
-      <main className="container mx-auto px-4 mt-8 grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-6xl">
-        <div className="lg:col-span-2 flex flex-col items-center justify-center bg-card/50 rounded-3xl border border-primary/10 shadow-sm p-6 min-h-[500px]">
-          <TimerDisplay onComplete={handleCompleteSession} />
-        </div>
+    <div className="min-h-screen bg-background">
+      <main className="min-h-screen py-10 px-6 md:px-12">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start mt-8">
+            
+            {/* Centerpiece: Timer Display (Left/Center Column) */}
+            <div className="lg:col-span-7 flex flex-col items-center justify-center space-y-12 h-full">
+              <TimerDisplay onComplete={handleCompleteSession} />
+            </div>
 
-        <div className="space-y-6">
-          <TaskSelector 
-            tasks={plan?.tasks || []} 
-            completedTaskIds={log?.tasksCompleted || []} 
-          />
-          
-          <div className="bg-primary/5 border border-primary/10 rounded-2xl p-6 text-right space-y-3">
-            <h4 className="font-bold text-primary">نصيحة الحفظ</h4>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              &quot;التركيز في الجلسة الواحدة أهم من طول وقتها. حاول إبعاد المشتتات تماماً والعيش مع الآيات بقلب حاضر.&quot;
-            </p>
+            {/* Right Sidebar: Tasks & Guidance */}
+            <div className="lg:col-span-5 space-y-8">
+              <TaskSelector 
+                tasks={plan?.tasks || []} 
+                completedTaskIds={log?.tasksCompleted || []} 
+              />
+
+              {/* Tip of the Day Card */}
+              <div className="relative overflow-hidden bg-tertiary-container rounded-[2rem] p-8 text-on-tertiary-container mt-8 shadow-sm">
+                <div className="absolute -top-12 -left-12 w-32 h-32 bg-secondary opacity-10 rounded-full blur-3xl"></div>
+                <div className="absolute -bottom-8 -right-8 w-24 h-24 bg-primary opacity-20 rounded-full blur-2xl"></div>
+                
+                <div className="relative z-10 space-y-4">
+                  <div className="flex items-center gap-3">
+                    <span className="font-bold text-sm text-tertiary-fixed font-sans">نصيحة اليوم للتركيز</span>
+                  </div>
+                  <p className="font-sans text-sm leading-relaxed text-tertiary-fixed-dim">
+                    التركيز في الجلسة الواحدة أهم من طول وقتها. حاول إبعاد المشتتات تماماً والعيش مع الآيات بقلب حاضر. جرب الربط البصري بين الكلمات لمساعدة الذاكرة الصورية.
+                  </p>
+                </div>
+              </div>
+
+              {/* Quick Stats */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="bg-white p-5 rounded-3xl shadow-sm border border-emerald-50 text-center">
+                  <span className="font-sans text-[10px] text-emerald-800/40 uppercase block mb-1">جلسات اليوم</span>
+                  <span className="font-serif text-3xl font-bold text-emerald-900">{log?.tasksCompleted?.length || 0}</span>
+                </div>
+                <div className="bg-white p-5 rounded-3xl shadow-sm border border-emerald-50 text-center">
+                  <span className="font-sans text-[10px] text-emerald-800/40 uppercase block mb-1">إجمالي المهام</span>
+                  <span className="font-serif text-3xl font-bold text-emerald-900">{plan?.tasks?.length || 0}</span>
+                </div>
+              </div>
+
+            </div>
           </div>
         </div>
       </main>

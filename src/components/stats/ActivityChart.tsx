@@ -1,9 +1,8 @@
 'use client';
 
 import { DailyLog } from '@/lib/appwrite/database';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell } from 'recharts';
-import { format, parseISO, subDays } from 'date-fns';
+import { format, subDays } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { useEffect, useState } from 'react';
 
@@ -15,6 +14,7 @@ export function ActivityChart({ logs }: ActivityChartProps) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 
@@ -33,23 +33,24 @@ export function ActivityChart({ logs }: ActivityChartProps) {
   });
 
   return (
-    <Card className="border-primary/10 shadow-sm">
-      <CardHeader className="py-4 border-b border-primary/5">
-        <CardTitle className="text-lg font-serif font-bold text-primary">نشاط آخر 15 يوم</CardTitle>
-      </CardHeader>
-      <CardContent className="pt-6 pb-2 px-2 h-64 min-w-0">
+    <div className="bg-white rounded-xl p-8 border border-surface-container-high shadow-sm shadow-emerald-900/5 h-full">
+      <div className="flex items-center justify-between mb-8">
+        <h4 className="font-serif text-2xl font-bold text-primary">نشاط المراجعة الأسبوعي</h4>
+      </div>
+      
+      <div className="h-64 min-w-0" dir="ltr">
         {!mounted ? (
           <div className="w-full h-full bg-muted/20 animate-pulse rounded-lg" />
         ) : (
           <ResponsiveContainer width="100%" height="100%" minWidth={0}>
             <BarChart data={data}>
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#ebe8e2" />
               <XAxis 
                 dataKey="date" 
                 axisLine={false} 
                 tickLine={false} 
-                tick={{ fontSize: 10, fill: '#64748b' }} 
-                interval={1}
+                tick={{ fontSize: 10, fill: '#404946', fontFamily: 'Cairo' }} 
+                interval="preserveStartEnd"
               />
               <YAxis 
                 hide 
@@ -57,14 +58,14 @@ export function ActivityChart({ logs }: ActivityChartProps) {
                 tickLine={false} 
               />
               <Tooltip 
-                cursor={{ fill: '#f8fafc' }}
+                cursor={{ fill: '#f6f3ed' }}
                 content={({ active, payload }) => {
                   if (active && payload && payload.length) {
                     return (
-                      <div className="bg-white p-3 border border-primary/10 shadow-xl rounded-xl text-right space-y-1">
-                        <p className="text-xs font-bold text-primary">{payload[0].payload.date}</p>
-                        <p className="text-[10px] text-muted-foreground">{payload[0].value} دقيقة تدبر</p>
-                        <p className="text-[10px] text-muted-foreground">{payload[0].payload.tasks} مهام مكتملة</p>
+                      <div className="bg-white p-3 border border-surface-container-high shadow-xl rounded-xl text-right space-y-1">
+                        <p className="text-xs font-bold text-primary" dir="rtl">{payload[0].payload.date}</p>
+                        <p className="text-[10px] text-muted-foreground" dir="rtl">{payload[0].value} دقيقة تدبر</p>
+                        <p className="text-[10px] text-muted-foreground" dir="rtl">{payload[0].payload.tasks} مهام مكتملة</p>
                       </div>
                     );
                   }
@@ -79,14 +80,14 @@ export function ActivityChart({ logs }: ActivityChartProps) {
                 {data.map((entry, index) => (
                   <Cell 
                     key={`cell-${index}`} 
-                    fill={entry.minutes > 0 ? 'oklch(0.45 0.12 165)' : 'oklch(0.92 0.01 165)'} 
+                    fill={entry.minutes > 0 ? '#004338' : '#e5e2dc'} 
                   />
                 ))}
               </Bar>
             </BarChart>
           </ResponsiveContainer>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

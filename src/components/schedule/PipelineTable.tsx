@@ -2,9 +2,8 @@
 
 import { calculateFarReviewSchedule } from "@/lib/husoon/calculator";
 import { UserProgress } from "@/lib/husoon/types";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Info, Clock, BookOpen } from "lucide-react";
+import { Info, History } from "lucide-react";
 
 interface PipelineTableProps {
   progress: UserProgress;
@@ -30,59 +29,59 @@ export function PipelineTable({ progress }: PipelineTableProps) {
   }
 
   return (
-    <Card className="border-primary/10 shadow-sm overflow-hidden">
-      <CardHeader className="bg-primary/5 py-4 border-b border-primary/10">
-        <CardTitle className="text-lg font-serif font-bold text-primary flex items-center gap-2">
-          <BookOpen className="w-5 h-5" />
-          جدول الأنابيب (مراجعة البعيد)
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="p-0">
-        <div className="overflow-x-auto">
-          <table className="w-full text-right border-collapse">
-            <thead>
-              <tr className="bg-muted/30 border-b border-primary/5 text-xs text-muted-foreground font-bold">
-                <th className="px-4 py-3">اليوم</th>
-                <th className="px-4 py-3">الصفحات</th>
-                <th className="px-4 py-3 text-center">العدد</th>
-                <th className="px-4 py-3 text-center">الوقت التقديري</th>
-              </tr>
-            </thead>
-            <tbody className="text-sm">
-              {farSchedule.map((item, index) => {
-                const isToday = item.dayOfWeek === todayDayOfWeek;
-                return (
-                  <tr
-                    key={index}
-                    className={`border-b border-primary/5 last:border-0 transition-colors ${
-                      isToday ? "bg-primary/10 font-bold" : "hover:bg-muted/20"
-                    }`}
-                  >
-                    <td className="px-4 py-4 flex items-center gap-2">
-                      {item.dayName}
-                      {isToday && (
-                        <span className="text-[10px] bg-primary text-primary-foreground px-1 rounded">
-                          اليوم
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-4 py-4 font-mono dir-ltr text-left">
-                      ص {item.pages.from} - {item.pages.to}
-                    </td>
-                    <td className="px-4 py-4 text-center">{item.count}</td>
-                    <td className="px-4 py-4 text-center">
-                      <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground">
-                        <Clock className="w-3 h-3" />
-                        {item.estimatedMinutes} د
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+    <div>
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <History className="text-secondary w-6 h-6" />
+          <h3 className="font-serif text-2xl font-bold text-primary">جدول مراجعة البعيد</h3>
         </div>
-      </CardContent>
-    </Card>
+        <span className="px-3 py-1 bg-secondary-container text-on-secondary-container text-[10px] font-bold rounded-full uppercase tracking-wider">الأولوية القصوى</span>
+      </div>
+      
+      <div className="overflow-x-auto">
+        <table className="w-full text-right">
+          <thead>
+            <tr className="text-on-surface-variant/60 font-sans text-xs">
+              <th className="pb-4 font-medium px-2">اليوم</th>
+              <th className="pb-4 font-medium px-2">الصفحات</th>
+              <th className="pb-4 font-medium px-2 text-center">العدد</th>
+              <th className="pb-4 font-medium px-2 text-left">الوقت التقديري</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-surface-container-high/50 font-sans text-sm">
+            {farSchedule.map((item, index) => {
+              const isToday = item.dayOfWeek === todayDayOfWeek;
+              // Add specific styling based on whether it is today
+              
+              return (
+                <tr
+                  key={index}
+                  className={`group transition-colors ${
+                    isToday ? "bg-surface-container-lowest/50 border-r-4 border-secondary" : "hover:bg-surface-container-highest/40"
+                  }`}
+                >
+                  <td className="py-4 font-bold px-2">{item.dayName}</td>
+                  <td className="py-4 px-2">
+                    <span className="px-2 py-0.5 bg-surface-container-high rounded-full dir-ltr inline-block">
+                      ص {item.pages.from} - {item.pages.to}
+                    </span>
+                  </td>
+                  <td className="py-4 px-2 text-center">{item.count} صفحة</td>
+                  <td className="py-4 px-2 text-left">
+                    {isToday ? (
+                      <button className="px-4 py-1.5 bg-secondary text-on-secondary rounded-lg text-xs font-bold shadow-md shadow-secondary/20 hover:scale-105 transition-transform">
+                        بدء الآن
+                      </button>
+                    ) : (
+                      <span className="text-on-surface-variant/40">{item.estimatedMinutes} دقيقة</span>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 }

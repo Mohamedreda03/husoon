@@ -1,17 +1,15 @@
-'use client';
+"use client";
 
-import { useTodayPlan } from '@/hooks/useTodayPlan';
-import { useDailyLog } from '@/hooks/useDailyLog';
-import { TodayCard } from '@/components/dashboard/TodayCard';
-import { FortressGrid } from '@/components/dashboard/FortressGrid';
-import { TaskList } from '@/components/dashboard/TaskList';
-import { Button } from '@/components/ui/button';
-import { useUser } from '@/hooks/useUser';
-import { LogOut, CheckCircle2, Trophy, Timer, CalendarDays } from 'lucide-react';
-import { useState } from 'react';
-import { updateUserProfile } from '@/lib/appwrite/database';
-import { toast } from 'sonner';
-import Link from 'next/link';
+import { useTodayPlan } from "@/hooks/useTodayPlan";
+import { useDailyLog } from "@/hooks/useDailyLog";
+import { TodayCard } from "@/components/dashboard/TodayCard";
+import { FortressGrid } from "@/components/dashboard/FortressGrid";
+import { TaskList } from "@/components/dashboard/TaskList";
+import { useUser } from "@/hooks/useUser";
+import { useState } from "react";
+import { updateUserProfile } from "@/lib/appwrite/database";
+import { toast } from "sonner";
+import Link from "next/link";
 
 export default function DashboardPage() {
   const { plan, profile, isLoading: isPlanLoading } = useTodayPlan();
@@ -20,7 +18,7 @@ export default function DashboardPage() {
   const [isFinishing, setIsFinishing] = useState(false);
 
   const completedTaskIds = log?.tasksCompleted || [];
-  const isDayDone = plan?.tasks.every(t => completedTaskIds.includes(t.id));
+  const isDayDone = plan?.tasks.every((t) => completedTaskIds.includes(t.id));
 
   const handleFinishDay = async () => {
     if (!profile) return;
@@ -31,9 +29,9 @@ export default function DashboardPage() {
         streakCount: (profile.streakCount || 0) + 1,
         lastActiveDate: new Date().toISOString(),
       });
-      toast.success('مبارك! تم تسجيل إنجاز اليوم بنجاح 🎊');
+      toast.success("مبارك! تم تسجيل إنجاز اليوم بنجاح 🎊");
     } catch (error) {
-      toast.error('حدث خطأ أثناء تحديث البيانات');
+      toast.error("حدث خطأ أثناء تحديث البيانات");
     } finally {
       setIsFinishing(false);
     }
@@ -44,90 +42,70 @@ export default function DashboardPage() {
       <div className="flex items-center justify-center min-h-screen bg-background">
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-          <p className="text-primary font-serif animate-pulse">جاري تحميل خطتك اليومية...</p>
+          <p className="text-primary font-serif animate-pulse">
+            جاري تحميل خطتك اليومية...
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background pb-12">
-      <main className="container mx-auto px-4 mt-8 space-y-8 max-w-5xl">
-        {/* Today Summary */}
-        <TodayCard 
-          currentPage={plan?.currentPage || 0} 
-          completedTasks={completedTaskIds.length} 
-          totalTasks={plan?.tasks.length || 0} 
-        />
+    <div className="pb-20 px-4 md:px-12 space-y-12 max-w-7xl mx-auto">
+      {/* Spiritual Quote Section */}
+      <section className="max-w-4xl mx-auto text-center space-y-4 py-8">
+        <h2 className="font-serif text-3xl md:text-4xl text-primary leading-relaxed italic">
+          &quot;خياركم من تعلم القرآن وعلمه&quot;
+        </h2>
+        <p className="font-sans text-secondary font-medium">— حديث شريف</p>
+      </section>
 
-        {/* Fortress Overview */}
-        <FortressGrid 
-          tasks={plan?.tasks || []} 
-          completedTaskIds={completedTaskIds} 
-        />
-
-        {/* Tasks Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-6">
-            <TaskList 
-              tasks={plan?.tasks || []} 
-              completedTaskIds={completedTaskIds} 
-              onToggleTask={toggleTask} 
-            />
-          </div>
-
-          {/* Side Info / Call to Action */}
-          <div className="space-y-6">
-            <Card className={`border-primary/20 ${isDayDone ? 'bg-primary/5' : 'bg-card'}`}>
-              <CardContent className="p-6 text-center space-y-4">
-                <div className={`mx-auto w-16 h-16 rounded-full flex items-center justify-center ${isDayDone ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
-                  <CheckCircle2 className="w-8 h-8" />
-                </div>
-                <div className="space-y-2">
-                  <h3 className="text-xl font-bold font-serif text-primary">
-                    {isDayDone ? 'أتممت مهام اليوم!' : 'بانتظار الإنجاز...'}
-                  </h3>
-                  <p className="text-sm text-muted-foreground">
-                    {isDayDone 
-                      ? 'لقد أكملت جميع مهام الحصون الخمسة لليوم، اضغط الزر بالأسفل لتسجيل حفظك' 
-                      : 'أكمل جميع المهام أعلاه لتتمكن من تسجيل إنجاز اليوم'}
-                  </p>
-                </div>
-                <Button 
-                  className="w-full h-12 text-lg font-bold" 
-                  disabled={!isDayDone || isFinishing}
-                  onClick={handleFinishDay}
-                >
-                  {isFinishing ? 'جاري التسجيل...' : 'تسجيل حفظ اليوم'}
-                </Button>
-              </CardContent>
-            </Card>
-
-            <div className="p-4 rounded-xl bg-accent/30 border border-primary/10 text-right">
-              <h4 className="font-bold text-primary mb-2">💡 تذكير مبارك</h4>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                &quot;مَنْ قَرَأَ حَرْفًا مِنْ كِتَابِ اللَّهِ فَلَهُ بِهِ حَسَنَةٌ، وَالْحَسَنَةُ بِعَشْرِ أَمْثَالِهَا&quot;
-              </p>
-            </div>
-          </div>
+      {/* Today Summary & Task Checklist */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        <div className="lg:col-span-8">
+          <TodayCard 
+            currentPage={plan?.currentPage || 0}
+            completedTasks={completedTaskIds.length}
+            totalTasks={plan?.tasks.length || 0}
+            onFinishDay={handleFinishDay}
+            isDayDone={isDayDone}
+            isFinishing={isFinishing}
+          />
         </div>
-      </main>
-    </div>
-  );
-}
+        <div className="lg:col-span-4">
+          <TaskList
+            tasks={plan?.tasks || []}
+            completedTaskIds={completedTaskIds}
+            onToggleTask={toggleTask}
+          />
+        </div>
+      </div>
 
-function Card({ children, className }: { children: React.ReactNode, className?: string }) {
-  return (
-    <div className={`rounded-xl border shadow-sm ${className}`}>
-      {children}
-    </div>
-  );
-}
+      {/* Fortress Grid - Bento Style */}
+      <FortressGrid tasks={plan?.tasks || []} completedTaskIds={completedTaskIds} />
 
-function CardContent({ children, className }: { children: React.ReactNode, className?: string }) {
-  return (
-    <div className={className}>
-      {children}
+      {/* Bottom CTA Section */}
+      <section className="bg-emerald-950 rounded-[2.5rem] p-8 md:p-12 text-center space-y-8 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-800/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-amber-600/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
+        <div className="relative space-y-4">
+          <h2 className="font-serif text-3xl md:text-4xl text-emerald-100">هل أنت مستعد لمراجعة اليوم؟</h2>
+          <p className="text-emerald-300/70 max-w-xl mx-auto font-sans">
+            لقد حققت تقدماً رائعاً الأسبوع الماضي، استمر على هذا النهج لتصل لختمتك المنشودة في غضون 4 أشهر.
+          </p>
+        </div>
+        <div className="relative flex flex-col md:flex-row justify-center gap-4">
+          <button 
+            disabled={!isDayDone || isFinishing}
+            onClick={handleFinishDay}
+            className="bg-amber-500 text-emerald-950 px-10 py-4 rounded-2xl font-bold text-lg hover:bg-amber-400 transition-all shadow-xl shadow-amber-900/20 disabled:opacity-50 disabled:cursor-not-allowed w-full md:w-auto">
+            {isFinishing ? "جاري التسجيل..." : "تسجيل حفظ اليوم"}
+          </button>
+          <Link href="/schedule" className="bg-emerald-900/50 text-emerald-100 border border-emerald-800 px-10 py-4 rounded-2xl font-bold text-lg hover:bg-emerald-800 transition-all text-center w-full md:w-auto">
+            عرض الخطة الأسبوعية
+          </Link>
+        </div>
+      </section>
     </div>
   );
 }

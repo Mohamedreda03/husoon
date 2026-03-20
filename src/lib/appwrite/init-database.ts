@@ -85,8 +85,8 @@ async function setup() {
     try {
       await databases.get(DATABASE_ID!);
       console.log(`Database "${DATABASE_ID}" already exists.`);
-    } catch (e: any) {
-      if (e.code === 404) {
+    } catch (e) {
+      if ((e as { code: number }).code === 404) {
         await databases.create(DATABASE_ID!, 'Husoon Database');
         console.log(`Created Database: ${DATABASE_ID}`);
       } else {
@@ -108,8 +108,8 @@ async function setup() {
       try {
         await databases.getCollection(DATABASE_ID!, config.id);
         console.log(`Collection "${config.name}" (${config.id}) already exists.`);
-      } catch (e: any) {
-        if (e.code === 404) {
+      } catch (e) {
+        if ((e as { code: number }).code === 404) {
           await databases.createCollection(
             DATABASE_ID!,
             config.id,
@@ -141,8 +141,8 @@ async function setup() {
               console.log(`  - Created attribute: ${attr.key}`);
               // Small delay between attributes
               await new Promise(resolve => setTimeout(resolve, 500));
-            } catch (ae: any) {
-              console.error(`  - Error creating attribute ${attr.key}:`, ae.message);
+            } catch (ae) {
+              console.error(`  - Error creating attribute ${attr.key}:`, (ae as Error).message);
             }
           }
         } else {
@@ -152,8 +152,8 @@ async function setup() {
     }
 
     console.log('Setup completed successfully!');
-  } catch (error: any) {
-    console.error('Setup failed:', error.message);
+  } catch (error) {
+    console.error('Setup failed:', (error as Error).message);
   }
 }
 

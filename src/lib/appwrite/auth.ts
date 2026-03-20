@@ -19,13 +19,20 @@ export async function registerUser(email: string, password: string, name: string
     }
 }
 
+interface AppwriteError {
+    code: number;
+    type: string;
+    message: string;
+}
+
 export async function loginUser(email: string, password: string) {
     try {
         const session = await account.createEmailPasswordSession(email, password);
         return session;
-    } catch (error: any) {
+    } catch (error) {
+        const appError = error as AppwriteError;
         // If session already exists, delete it and try again
-        if (error.code === 401 || error.type === 'user_session_already_exists') {
+        if (appError.code === 401 || appError.type === 'user_session_already_exists') {
             try {
                 await account.deleteSession('current');
                 return await account.createEmailPasswordSession(email, password);

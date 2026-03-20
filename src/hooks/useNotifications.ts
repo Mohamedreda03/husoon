@@ -23,6 +23,7 @@ export function useNotifications() {
 
   useEffect(() => {
     if (typeof window !== 'undefined' && 'Notification' in window) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       checkSubscription();
     }
   }, []);
