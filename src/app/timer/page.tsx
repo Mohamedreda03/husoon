@@ -5,16 +5,12 @@ import { useDailyLog } from '@/hooks/useDailyLog';
 import { TimerDisplay } from '@/components/timer/TimerDisplay';
 import { TaskSelector } from '@/components/timer/TaskSelector';
 import { useTimerStore } from '@/stores/timerStore';
-import { Button } from '@/components/ui/button';
-import { ChevronRight, LogOut } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
 export default function TimerPage() {
   const { plan, isLoading: isPlanLoading } = useTodayPlan();
   const { log, toggleTask, isLoading: isLogLoading } = useDailyLog();
   const { selectedTaskId, selectedTaskName, complete } = useTimerStore();
-  const router = useRouter();
 
   const handleCompleteSession = () => {
     if (selectedTaskId) {

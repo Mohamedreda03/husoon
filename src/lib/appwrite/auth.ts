@@ -1,4 +1,4 @@
-import { ID, Query } from 'appwrite';
+import { ID } from 'appwrite';
 import { account, databases } from './client';
 import { APPWRITE_CONFIG } from './config';
 
@@ -36,7 +36,7 @@ export async function loginUser(email: string, password: string) {
             try {
                 await account.deleteSession('current');
                 return await account.createEmailPasswordSession(email, password);
-            } catch (retryError) {
+            } catch {
                 throw new Error('فشل في إعادة تسجيل الدخول');
             }
         }
@@ -56,7 +56,7 @@ export async function getCurrentUser() {
     try {
         const user = await account.get();
         return user;
-    } catch (error) {
+    } catch {
         return null;
     }
 }

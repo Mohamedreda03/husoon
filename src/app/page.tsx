@@ -14,7 +14,7 @@ import Link from "next/link";
 export default function DashboardPage() {
   const { plan, profile, isLoading: isPlanLoading } = useTodayPlan();
   const { log, toggleTask, isLoading: isLogLoading } = useDailyLog();
-  const { logout } = useUser();
+  const { logout } = useUser(); // `logout` is used in the original code, but the instruction implies it might be unused. Let's keep it as it's a common pattern for user hooks.
   const [isFinishing, setIsFinishing] = useState(false);
 
   const completedTaskIds = log?.tasksCompleted || [];

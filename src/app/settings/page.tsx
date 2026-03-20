@@ -28,7 +28,7 @@ import {
 export default function SettingsPage() {
   const { user, logout, isLoading: isUserLoading } = useUser();
   const { profile, isLoading: isProfileLoading } = useTodayPlan();
-  const { isSubscribed, permission, requestPermission, subscribe } = useNotifications();
+  const { isSubscribed, requestPermission, subscribe } = useNotifications();
   const router = useRouter();
 
   const [pagesDone, setPagesDone] = useState(0);
