@@ -4,6 +4,8 @@ import { useQuery } from '@tanstack/react-query';
 import { useUser } from './useUser';
 import { getUserLogs, getUserProfile } from '@/lib/appwrite/database';
 import { estimateCompletionDate } from '@/lib/husoon/calculator';
+import { parseMemorizedRanges, getTotalMemorizedPages, getMemorizedJuz } from '@/lib/husoon/memorization';
+import { getPagesPerDayFromGoalType, DailyGoalType, UserProgress } from '@/lib/husoon/types';
 
 export function useStats() {
   const { user } = useUser();
@@ -20,19 +22,30 @@ export function useStats() {
 
       if (!profile) throw new Error('Profile not found');
 
+      const ranges = parseMemorizedRanges(profile.memorizedRanges);
       const totalPages = 604;
-      const pagesDone = profile.pagesDone || 0;
+      const pagesDone = getTotalMemorizedPages(ranges);
       const completionPercentage = Math.round((pagesDone / totalPages) * 100);
       const remainingPages = totalPages - pagesDone;
-      const estimatedCompletion = estimateCompletionDate({
+      const goalType = (profile.dailyGoalType as DailyGoalType) || 'page';
+      const pagesPerDay = getPagesPerDayFromGoalType(goalType);
+
+      const progress: UserProgress = {
+        memorizedRanges: ranges,
+        dailyGoalType: goalType,
+        dailyGoalValue: profile.dailyGoalValue || 1,
         pagesDone,
-        pagesPerDay: profile.pagesPerDay || 1,
-        startPage: profile.startPage || 3,
-      });
+        pagesPerDay,
+        startPage: profile.startPage || 1,
+      };
+
+      const estimatedCompletion = estimateCompletionDate(progress);
 
       // Calculate total minutes from logs
       const totalMinutes = logs.reduce((acc, log) => acc + (log.totalMinutes || 0), 0);
       const totalTasks = logs.reduce((acc, log) => acc + (log.tasksCompleted?.length || 0), 0);
+
+      const memorizedJuz = getMemorizedJuz(ranges);
 
       return {
         pagesDone,
@@ -42,8 +55,10 @@ export function useStats() {
         totalMinutes,
         totalTasks,
         streakCount: profile.streakCount || 0,
-        logs: logs.slice(0, 30), // Last 30 days for charts
-        totalJuz: Math.floor(pagesDone / 20),
+        logs: logs.slice(0, 30),
+        totalJuz: memorizedJuz.length,
+        memorizedJuz,
+        memorizedRanges: ranges,
       };
     },
     enabled: !!user,

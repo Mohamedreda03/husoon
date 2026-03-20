@@ -6,11 +6,14 @@ import { TimerDisplay } from '@/components/timer/TimerDisplay';
 import { TaskSelector } from '@/components/timer/TaskSelector';
 import { useTimerStore } from '@/stores/timerStore';
 import { toast } from 'sonner';
+import { getDailyTip } from '@/data/tips';
 
 export default function TimerPage() {
   const { plan, isLoading: isPlanLoading } = useTodayPlan();
   const { log, toggleTask, isLoading: isLogLoading } = useDailyLog();
   const { selectedTaskId, selectedTaskName, complete } = useTimerStore();
+
+  const dailyTip = getDailyTip();
 
   const handleCompleteSession = () => {
     if (selectedTaskId) {
@@ -34,7 +37,7 @@ export default function TimerPage() {
         <div className="max-w-6xl mx-auto">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start mt-8">
             
-            {/* Centerpiece: Timer Display (Left/Center Column) */}
+            {/* Centerpiece: Timer Display */}
             <div className="lg:col-span-7 flex flex-col items-center justify-center space-y-12 h-full">
               <TimerDisplay onComplete={handleCompleteSession} />
             </div>
@@ -46,7 +49,7 @@ export default function TimerPage() {
                 completedTaskIds={log?.tasksCompleted || []} 
               />
 
-              {/* Tip of the Day Card */}
+              {/* Tip of the Day Card — Dynamic */}
               <div className="relative overflow-hidden bg-tertiary-container rounded-[2rem] p-8 text-on-tertiary-container mt-8 shadow-sm">
                 <div className="absolute -top-12 -left-12 w-32 h-32 bg-secondary opacity-10 rounded-full blur-3xl"></div>
                 <div className="absolute -bottom-8 -right-8 w-24 h-24 bg-primary opacity-20 rounded-full blur-2xl"></div>
@@ -56,7 +59,7 @@ export default function TimerPage() {
                     <span className="font-bold text-sm text-tertiary-fixed font-sans">نصيحة اليوم للتركيز</span>
                   </div>
                   <p className="font-sans text-sm leading-relaxed text-tertiary-fixed-dim">
-                    التركيز في الجلسة الواحدة أهم من طول وقتها. حاول إبعاد المشتتات تماماً والعيش مع الآيات بقلب حاضر. جرب الربط البصري بين الكلمات لمساعدة الذاكرة الصورية.
+                    {dailyTip}
                   </p>
                 </div>
               </div>

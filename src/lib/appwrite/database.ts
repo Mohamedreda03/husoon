@@ -10,8 +10,9 @@ export interface UserProfile extends Models.Document {
     pagesPerDay: number;
     streakCount: number;
     lastActiveDate?: string;
-    notificationsEnabled: boolean;
-    notificationTime: string;
+    memorizedRanges: string; // JSON string: MemorizedRange[]
+    dailyGoalType: string;   // DailyGoalType
+    dailyGoalValue: number;
     timezone: string;
 }
 
@@ -46,7 +47,7 @@ export async function getUserLogs(userId: string) {
       [
         Query.equal('userId', userId),
         Query.orderDesc('date'),
-        Query.limit(100), // Fetch last 100 days for stats
+        Query.limit(100),
       ]
     );
     return response.documents as unknown as DailyLog[];
@@ -110,41 +111,4 @@ export async function getLogHistory(userId: string, limit: number = 30) {
         APPWRITE_CONFIG.collections.dailyLogs,
         [Query.equal('userId', userId), Query.orderDesc('date'), Query.limit(limit)]
     );
-}
-
-export async function savePushSubscription(userId: string, sub: PushSubscription) {
-    // Find if user already has a subscription to update it, or create a new one
-    try {
-        const existing = await databases.listDocuments(
-            APPWRITE_CONFIG.databaseId,
-            APPWRITE_CONFIG.collections.pushSubs,
-            [Query.equal('userId', userId), Query.equal('endpoint', sub.endpoint)]
-        );
-
-        const subData = {
-            userId,
-            endpoint: sub.endpoint,
-            p256dh: btoa(String.fromCharCode.apply(null, new Uint8Array(sub.getKey('p256dh')!) as unknown as number[])),
-            auth: btoa(String.fromCharCode.apply(null, new Uint8Array(sub.getKey('auth')!) as unknown as number[])),
-        };
-
-        if (existing.documents.length > 0) {
-            return await databases.updateDocument(
-                APPWRITE_CONFIG.databaseId,
-                APPWRITE_CONFIG.collections.pushSubs,
-                existing.documents[0].$id,
-                subData
-            );
-        } else {
-            return await databases.createDocument(
-                APPWRITE_CONFIG.databaseId,
-                APPWRITE_CONFIG.collections.pushSubs,
-                ID.unique(),
-                subData
-            );
-        }
-    } catch (error) {
-        console.error('Error saving push subscription:', error);
-        throw error;
-    }
 }

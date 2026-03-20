@@ -5,15 +5,29 @@ import { useTodayPlan } from '@/hooks/useTodayPlan';
 import { WeekView } from '@/components/schedule/WeekView';
 import { PipelineTable } from '@/components/schedule/PipelineTable';
 import { WeeklyPlan } from '@/components/schedule/WeeklyPlan';
-import { Download, CalendarDays, EyeOff } from 'lucide-react';
+import { CalendarDays, EyeOff } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import { toast } from 'sonner';
+import { parseMemorizedRanges, getTotalMemorizedPages } from '@/lib/husoon/memorization';
+import { getPagesPerDayFromGoalType, DailyGoalType } from '@/lib/husoon/types';
 
 export default function SchedulePage() {
   const { user, isLoading: isUserLoading } = useUser();
   const { profile, isLoading: isProfileLoading } = useTodayPlan();
   const router = useRouter();
 
-  if (isUserLoading || isProfileLoading) {
+  useEffect(() => {
+    if (isUserLoading || isProfileLoading) return;
+    
+    if (!user) {
+      router.push('/login');
+    } else if (!profile) {
+      router.push('/onboarding');
+    }
+  }, [user, profile, isUserLoading, isProfileLoading, router]);
+
+  if (isUserLoading || isProfileLoading || !user || !profile) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
@@ -21,20 +35,35 @@ export default function SchedulePage() {
     );
   }
 
-  if (!user) {
-    router.push('/login');
-    return null;
-  }
-
-  if (!profile) {
-    router.push('/onboarding');
-    return null;
-  }
+  const ranges = parseMemorizedRanges(profile.memorizedRanges);
+  const totalMemorized = getTotalMemorizedPages(ranges);
+  const goalType = (profile.dailyGoalType as DailyGoalType) || 'page';
+  const pagesPerDay = getPagesPerDayFromGoalType(goalType);
 
   const progress = {
-    pagesDone: profile.pagesDone || 0,
-    pagesPerDay: profile.pagesPerDay || 1,
-    startPage: profile.startPage || 3,
+    pagesDone: totalMemorized,
+    pagesPerDay: pagesPerDay,
+    startPage: profile.startPage || 1,
+    memorizedRanges: ranges,
+    dailyGoalType: goalType,
+    dailyGoalValue: profile.dailyGoalValue || 1,
+  };
+
+  const handleCopySchedule = () => {
+    // Generate text version of the weekly schedule
+    const days = ['السبت', 'الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
+    let text = '📅 جدول الحفظ الأسبوعي\n\n';
+    days.forEach(day => {
+      text += `${day}: حفظ جديد + مراجعة\n`;
+    });
+    text += `\n📊 إجمالي الحفظ: ${totalMemorized} صفحة (${Math.round((totalMemorized / 604) * 100)}%)\n`;
+    text += `⏱ المعدل اليومي: ${pagesPerDay} صفحة\n`;
+    
+    navigator.clipboard.writeText(text).then(() => {
+      toast.success('تم نسخ الجدول إلى الحافظة 📋');
+    }).catch(() => {
+      toast.error('فشل في نسخ الجدول');
+    });
   };
 
   return (
@@ -49,11 +78,16 @@ export default function SchedulePage() {
               <p className="font-sans text-on-surface-variant mt-2">خطة مراجعة وحفظ الأسبوع الحالي</p>
             </div>
             <div className="flex gap-3">
-              <button className="bg-surface-container-low px-6 py-2 rounded-full font-sans text-sm text-primary font-medium flex items-center gap-2 hover:bg-surface-container-highest transition-colors">
-                <Download className="w-4 h-4" />
-                تحميل الجدول
+              <button 
+                onClick={handleCopySchedule}
+                className="bg-surface-container-low px-6 py-2 rounded-full font-sans text-sm text-primary font-medium flex items-center gap-2 hover:bg-surface-container-highest transition-colors"
+              >
+                📋 نسخ الجدول
               </button>
-              <button className="bg-primary text-on-primary px-6 py-2 rounded-full font-sans text-sm font-bold flex items-center gap-2 shadow-lg shadow-primary/20">
+              <button 
+                onClick={() => router.push('/settings')}
+                className="bg-primary text-on-primary px-6 py-2 rounded-full font-sans text-sm font-bold flex items-center gap-2 shadow-lg shadow-primary/20"
+              >
                 <CalendarDays className="w-4 h-4" />
                 تعديل الخطة
               </button>
@@ -80,7 +114,7 @@ export default function SchedulePage() {
             <div className="relative z-10 space-y-4 md:w-2/3">
               <h3 className="font-serif text-3xl font-bold text-tertiary-fixed">هل أنت مستعد لجلسة تثبيت عميقة؟</h3>
               <p className="font-sans text-tertiary-fixed-dim text-lg leading-relaxed">
-                قم بتفعيل وضع التركيز لإخفاء التنبيهات والتركيز التام على ورد اليوم. سنقوم بقياس جودة تلاوتك وتنبيهك لمواضع المتشابهات.
+                قم بتفعيل وضع التركيز لإخفاء التنبيهات والتركيز التام على ورد اليوم.
               </p>
               <button 
                 onClick={() => router.push('/timer')}

@@ -11,8 +11,8 @@ export function Sidebar() {
   const { user } = useUser();
   const { profile } = useTodayPlan();
 
-  // Hide sidebar on auth/onboarding pages
-  if (pathname === '/login' || pathname === '/register' || pathname === '/onboarding') {
+  // Hide sidebar on auth pages only
+  if (pathname === '/login' || pathname === '/register') {
     return null;
   }
 

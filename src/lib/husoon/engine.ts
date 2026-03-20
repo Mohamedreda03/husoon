@@ -1,10 +1,12 @@
-import { UserProgress, DayPlan, HusoonTask, TaskType } from './types';
+import { UserProgress, DayPlan, HusoonTask } from './types';
 import { calculateFarReviewForToday } from './calculator';
+import { getNextPageToMemorize, getTotalMemorizedPages, getLastNMemorizedPages } from './memorization';
 import { format } from 'date-fns';
 
 export function calculateDayPlan(progress: UserProgress, date: Date): DayPlan {
   const tasks: HusoonTask[] = [];
-  const currentPage = progress.startPage + progress.pagesDone;
+  const totalMemorized = getTotalMemorizedPages(progress.memorizedRanges);
+  const currentPage = getNextPageToMemorize(progress.memorizedRanges, progress.startPage);
   
   // 1. الحصن الخامس — الحفظ الجديد (15 دقيقة)
   tasks.push({
@@ -44,23 +46,25 @@ export function calculateDayPlan(progress: UserProgress, date: Date): DayPlan {
   });
 
   // 4. الحصن الرابع — مراجعة القريب (الـ 20 صفحة الأخيرة)
-  if (progress.pagesDone >= 1) {
-    const nearCount = Math.min(20, progress.pagesDone);
-    const nearFrom = Math.max(progress.startPage, currentPage - nearCount);
-    tasks.push({
-      id: 'near',
-      fortressNumber: 4,
-      name: 'مراجعة القريب',
-      description: 'مراجعة آخر 20 صفحة تم حفظها لربط الحفظ الجديد بالقديم',
-      durationMinutes: nearCount,
-      pages: { from: nearFrom, to: currentPage - 1 },
-      isRequired: true,
-      timeOfDay: 'evening'
-    });
+  if (totalMemorized >= 1) {
+    const nearPages = getLastNMemorizedPages(progress.memorizedRanges, Math.min(20, totalMemorized));
+    if (nearPages) {
+      const nearCount = nearPages.to - nearPages.from + 1;
+      tasks.push({
+        id: 'near',
+        fortressNumber: 4,
+        name: 'مراجعة القريب',
+        description: 'مراجعة آخر 20 صفحة تم حفظها لربط الحفظ الجديد بالقديم',
+        durationMinutes: nearCount,
+        pages: nearPages,
+        isRequired: true,
+        timeOfDay: 'evening'
+      });
+    }
   }
 
   // 5. الحصن الثالث — مراجعة البعيد (تقسيم ما بعد الـ 20 صفحة على الأسبوع)
-  if (progress.pagesDone > 20) {
+  if (totalMemorized > 20) {
     const farPages = calculateFarReviewForToday(progress, date);
     if (farPages) {
       const count = farPages.to - farPages.from + 1;
@@ -69,7 +73,7 @@ export function calculateDayPlan(progress: UserProgress, date: Date): DayPlan {
         fortressNumber: 3,
         name: 'مراجعة البعيد',
         description: 'مراجعة الحفظ القديم (الذي تجاوز 20 صفحة) بمعدل جزأين يومياً',
-        durationMinutes: count * 1.5, // تقدير دقيقة ونصف لكل صفحة مراجعة قديمة
+        durationMinutes: count * 1.5,
         pages: farPages,
         isRequired: true,
         timeOfDay: 'anytime'

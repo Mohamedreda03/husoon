@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "db:setup": "npx tsx src/lib/appwrite/init-database.ts",
+    "db:migrate": "npx tsx src/lib/appwrite/init-database.ts --migrate",
+    "db:reset": "npx tsx src/lib/appwrite/init-database.ts --reset"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

@@ -14,7 +14,10 @@ export async function registerUser(email: string, password: string, name: string
         await createUserProfile(userAccount.$id, name);
 
         return userAccount;
-    } catch (error: unknown) {
+    } catch (error: any) {
+        if (error?.code === 409) {
+            throw new Error('هذا البريد الإلكتروني مسجل مسبقاً، يرجى تسجيل الدخول');
+        }
         throw new Error(error instanceof Error ? error.message : 'فشل في التسجيل');
     }
 }
@@ -29,10 +32,9 @@ export async function loginUser(email: string, password: string) {
     try {
         const session = await account.createEmailPasswordSession(email, password);
         return session;
-    } catch (error) {
-        const appError = error as AppwriteError;
+    } catch (error: any) {
         // If session already exists, delete it and try again
-        if (appError.code === 401 || appError.type === 'user_session_already_exists') {
+        if (error?.code === 401 || error?.type === 'user_session_already_exists') {
             try {
                 await account.deleteSession('current');
                 return await account.createEmailPasswordSession(email, password);
@@ -71,11 +73,12 @@ export async function createUserProfile(userId: string, name: string) {
                 userId: userId,
                 name: name,
                 pagesDone: 0,
-                startPage: 3,
+                startPage: 1,
                 pagesPerDay: 1.0,
                 streakCount: 0,
-                notificationsEnabled: false,
-                notificationTime: "07:00",
+                memorizedRanges: '[]',
+                dailyGoalType: 'page',
+                dailyGoalValue: 1,
                 timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
             }
         );

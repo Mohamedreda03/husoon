@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import { Award, Star, Medal, Trophy, Brain, Edit3 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
+import { isPageMemorized } from '@/lib/husoon/memorization';
 
 export default function StatsPage() {
   const { data: stats, isLoading } = useStats();
@@ -32,13 +33,51 @@ export default function StatsPage() {
     );
   }
 
+  // Dynamic achievements based on actual stats
+  const ranges = stats.memorizedRanges || [];
   const ACHIEVEMENTS = [
-    { name: 'ختم البقرة', icon: Award, active: true, color: 'bg-secondary-fixed text-on-secondary-container' },
-    { name: 'أول جزء', icon: Star, active: false, color: 'bg-surface-container text-outline-variant' },
-    { name: 'ثبات 30 يوم', icon: Medal, active: true, color: 'bg-primary-fixed text-on-primary-fixed-variant' },
-    { name: 'قناص الفجر', icon: Trophy, active: false, color: 'bg-surface-container text-outline-variant' },
-    { name: 'القارئ المتأمل', icon: Brain, active: true, color: 'bg-tertiary-fixed text-on-tertiary-fixed-variant' },
-    { name: 'الكاتب المتقن', icon: Edit3, active: false, color: 'bg-surface-container text-outline-variant' },
+    { 
+      name: 'ختم البقرة', 
+      icon: Award, 
+      active: (() => {
+        // Check if pages 2-49 are all memorized (Al-Baqarah)
+        for (let p = 2; p <= 49; p++) {
+          if (!isPageMemorized(ranges, p)) return false;
+        }
+        return true;
+      })(),
+      color: 'bg-secondary-fixed text-on-secondary-container' 
+    },
+    { 
+      name: 'أول جزء', 
+      icon: Star, 
+      active: stats.memorizedJuz.length >= 1,
+      color: 'bg-primary-fixed text-on-primary-fixed-variant' 
+    },
+    { 
+      name: 'ثبات 30 يوم', 
+      icon: Medal, 
+      active: stats.streakCount >= 30,
+      color: 'bg-primary-fixed text-on-primary-fixed-variant' 
+    },
+    { 
+      name: '100 صفحة', 
+      icon: Trophy, 
+      active: stats.pagesDone >= 100,
+      color: 'bg-tertiary-fixed text-on-tertiary-fixed-variant' 
+    },
+    { 
+      name: '10 أجزاء', 
+      icon: Brain, 
+      active: stats.memorizedJuz.length >= 10,
+      color: 'bg-tertiary-fixed text-on-tertiary-fixed-variant' 
+    },
+    { 
+      name: 'خاتم القرآن', 
+      icon: Edit3, 
+      active: stats.pagesDone >= 604,
+      color: 'bg-secondary-fixed text-on-secondary-container' 
+    },
   ];
 
   return (
@@ -62,11 +101,11 @@ export default function StatsPage() {
             <ActivityChart logs={stats.logs} />
           </div>
           <div>
-            <ProgressBars pagesDone={stats.pagesDone} />
+            <ProgressBars pagesDone={stats.pagesDone} memorizedRanges={ranges} />
           </div>
         </section>
 
-        {/* Achievements Bento */}
+        {/* Achievements Bento — Dynamic */}
         <section className="mt-12">
           <h4 className="font-serif text-2xl font-bold text-primary mb-6">الأوسمة والجوائز</h4>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
@@ -103,14 +142,17 @@ export default function StatsPage() {
                 >
                   متابعة الورد
                 </button>
-                <button className="px-6 py-2 rounded-lg bg-surface-container text-primary font-sans text-sm font-bold hover:bg-surface-container-high transition-colors">
+                <button 
+                  onClick={() => router.push('/settings')}
+                  className="px-6 py-2 rounded-lg bg-surface-container text-primary font-sans text-sm font-bold hover:bg-surface-container-high transition-colors"
+                >
                   تعديل الخطة
                 </button>
               </div>
             </div>
             <div className="shrink-0 w-48 h-32 bg-surface-container-low rounded-lg flex flex-col items-center justify-center border border-dashed border-outline-variant">
-              <span className="font-serif text-3xl font-bold text-primary">{Math.ceil((604 - stats.pagesDone) / 30)}</span>
-              <span className="font-sans text-xs text-on-surface-variant">صفحة متبقية اليوم</span>
+              <span className="font-serif text-3xl font-bold text-primary">{stats.remainingPages}</span>
+              <span className="font-sans text-xs text-on-surface-variant">صفحة متبقية</span>
             </div>
           </div>
         </section>
