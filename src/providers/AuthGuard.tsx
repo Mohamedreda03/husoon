@@ -19,7 +19,9 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
       router.replace('/login');
     } else if (user && isAuthPage) {
       // Logged in, trying to access login/register -> go to dashboard
-      router.replace('/');
+      // If coming from register, go to onboarding
+      const destination = pathname === '/register' ? '/onboarding' : '/';
+      router.replace(destination);
     }
   }, [user, isLoading, isAuthPage, router]);
 

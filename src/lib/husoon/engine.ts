@@ -45,14 +45,14 @@ export function calculateDayPlan(progress: UserProgress, date: Date): DayPlan {
     timeOfDay: 'night'
   });
 
-  // 4. الحصن الرابع — مراجعة القريب (الـ 20 صفحة الأخيرة)
+  // 4. الحصن الثالث — مراجعة القريب (الـ 20 صفحة الأخيرة)
   if (totalMemorized >= 1) {
     const nearPages = getLastNMemorizedPages(progress.memorizedRanges, Math.min(20, totalMemorized));
     if (nearPages) {
       const nearCount = nearPages.to - nearPages.from + 1;
       tasks.push({
         id: 'near',
-        fortressNumber: 4,
+        fortressNumber: 3,
         name: 'مراجعة القريب',
         description: 'مراجعة آخر 20 صفحة تم حفظها لربط الحفظ الجديد بالقديم',
         durationMinutes: nearCount,
@@ -63,14 +63,14 @@ export function calculateDayPlan(progress: UserProgress, date: Date): DayPlan {
     }
   }
 
-  // 5. الحصن الثالث — مراجعة البعيد (تقسيم ما بعد الـ 20 صفحة على الأسبوع)
+  // 5. الحصن الرابع — مراجعة البعيد (تقسيم ما بعد الـ 20 صفحة على الأسبوع)
   if (totalMemorized > 20) {
     const farPages = calculateFarReviewForToday(progress, date);
     if (farPages) {
       const count = farPages.to - farPages.from + 1;
       tasks.push({
         id: 'far',
-        fortressNumber: 3,
+        fortressNumber: 4,
         name: 'مراجعة البعيد',
         description: 'مراجعة الحفظ القديم (الذي تجاوز 20 صفحة) بمعدل جزأين يومياً',
         durationMinutes: count * 1.5,
@@ -105,6 +105,9 @@ export function calculateDayPlan(progress: UserProgress, date: Date): DayPlan {
     isRequired: true,
     timeOfDay: 'anytime'
   });
+
+  // Sort tasks by fortress number (1 -> 5)
+  tasks.sort((a, b) => a.fortressNumber - b.fortressNumber);
 
   const totalMinutes = tasks.reduce((sum, task) => sum + task.durationMinutes, 0);
 

@@ -19,11 +19,11 @@ export function FortressGrid({ tasks, completedTaskIds, totalMemorized = 0, dail
   const farCount = Math.max(0, totalMemorized - 20);
 
   const FORTRESS_CONFIG = [
-    { num: 1, title: 'الجديد', desc: 'المحفوظ اليومي المخطط له', val: goalOption?.label || 'صفحة', icon: Star, colorClass: 'border-emerald-700 bg-emerald-100 text-emerald-800 hover:bg-emerald-50/50', valColor: 'text-emerald-900' },
-    { num: 2, title: 'المراجعة القريبة', desc: 'آخر 20 صفحة تم حفظها', val: `${nearCount} صفحة`, icon: History, colorClass: 'border-amber-500 bg-amber-100 text-amber-800 hover:bg-amber-50/50', valColor: 'text-amber-700' },
-    { num: 3, title: 'المراجعة البعيدة', desc: 'المحفوظ القديم العام', val: farCount > 0 ? `${farCount} صفحة` : 'لا يوجد', icon: Layers, colorClass: 'border-stone-400 bg-stone-200 text-stone-700 hover:bg-stone-50', valColor: 'text-stone-700' },
-    { num: 4, title: 'التكرار', desc: 'عملية الربط والتثبيت', val: '15 مرة', icon: Repeat, colorClass: 'border-emerald-900 bg-emerald-900 text-emerald-100 hover:bg-emerald-50/50', valColor: 'text-emerald-900', iconBg: 'bg-emerald-900 text-emerald-100' },
-    { num: 5, title: 'الاستماع', desc: 'المادة الصوتية للورد', val: `${Math.round((goalOption?.pagesPerDay || 1) * 15)} دقيقة`, icon: Headset, colorClass: 'border-amber-300 bg-amber-200 text-amber-900 hover:bg-amber-50/50', valColor: 'text-amber-800', iconBg: 'bg-amber-200 text-amber-900' }
+    { num: 1, title: 'الورد المستمر', desc: 'قراءة القرآن نظراً (الحصن 1)', val: 'جزأين/يوم', icon: Layers, colorClass: 'border-emerald-900 bg-emerald-900 text-emerald-100 hover:bg-emerald-50/50', valColor: 'text-emerald-100' },
+    { num: 2, title: 'التحضير', desc: 'أسبوعي، ليلي، وقبلي (الحصن 2)', val: '45 دقيقة', icon: Headset, colorClass: 'border-amber-300 bg-amber-200 text-amber-900 hover:bg-amber-50/50', valColor: 'text-amber-800' },
+    { num: 3, title: 'مراجعة البعيد', desc: 'المحفوظ القديم العام (الحصن 3)', val: farCount > 0 ? `${farCount} صفحة` : 'لا يوجد', icon: History, colorClass: 'border-stone-400 bg-stone-200 text-stone-700 hover:bg-stone-50', valColor: 'text-stone-700' },
+    { num: 4, title: 'مراجعة القريب', desc: 'آخر 20 صفحة (الحصن 4)', val: `${nearCount} صفحة`, icon: Repeat, colorClass: 'border-amber-500 bg-amber-100 text-amber-800 hover:bg-amber-50/50', valColor: 'text-amber-700' },
+    { num: 5, title: 'الحفظ الجديد', desc: 'الورد اليومي المخطط (الحصن 5)', val: goalOption?.label || 'صفحة', icon: Star, colorClass: 'border-emerald-700 bg-emerald-100 text-emerald-800 hover:bg-emerald-50/50', valColor: 'text-emerald-900' },
   ];
 
   return (
@@ -48,8 +48,8 @@ export function FortressGrid({ tasks, completedTaskIds, totalMemorized = 0, dail
           <div className="space-y-3 text-sm font-sans text-on-surface-variant leading-relaxed">
             <p><strong className="text-primary">الحصن الأول — الورد المستمر:</strong> قراءة جزأين يومياً من القرآن نظراً (ختمة كل 15 يوم) لتبقى صلتك بالقرآن كاملاً.</p>
             <p><strong className="text-primary">الحصن الثاني — التحضير:</strong> الاستعداد للحفظ الجديد بالقراءة 15 مرة (قبلي + ليلي + أسبوعي).</p>
-            <p><strong className="text-primary">الحصن الثالث — مراجعة البعيد:</strong> مراجعة ما تجاوز 20 صفحة من الحفظ بتقسيمه على أيام الأسبوع.</p>
-            <p><strong className="text-primary">الحصن الرابع — مراجعة القريب:</strong> مراجعة آخر 20 صفحة محفوظة يومياً لتثبيتها.</p>
+            <p><strong className="text-primary">الحصن الثالث — مراجعة القريب:</strong> مراجعة آخر 20 صفحة محفوظة يومياً لتثبيتها.</p>
+            <p><strong className="text-primary">الحصن الرابع — مراجعة البعيد:</strong> مراجعة ما تجاوز 20 صفحة من الحفظ بتقسيمه على أيام الأسبوع.</p>
             <p><strong className="text-primary">الحصن الخامس — الحفظ الجديد:</strong> حفظ الورد الجديد بإتقان وتركيز.</p>
           </div>
         </div>
@@ -62,7 +62,7 @@ export function FortressGrid({ tasks, completedTaskIds, totalMemorized = 0, dail
           
           return (
             <div key={fort.num} className={`bg-surface-container-low p-6 rounded-3xl space-y-4 transition-all border-r-8 ${fort.colorClass} ${isCompleted ? 'opacity-50 grayscale' : ''}`}>
-              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${fort.iconBg || fort.colorClass.split(' ').slice(1,3).join(' ')}`}>
+              <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${fort.colorClass.split(' ').slice(1,3).join(' ')}`}>
                 <fort.icon className="w-6 h-6" />
               </div>
               <div>

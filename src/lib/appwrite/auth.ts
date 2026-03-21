@@ -33,15 +33,17 @@ export async function loginUser(email: string, password: string) {
         const session = await account.createEmailPasswordSession(email, password);
         return session;
     } catch (error: any) {
-        // If session already exists, delete it and try again
-        if (error?.code === 401 || error?.type === 'user_session_already_exists') {
+        // If session already exists (409), delete it and try again
+        if (error?.code === 409 || error?.type === 'user_session_already_exists') {
             try {
                 await account.deleteSession('current');
                 return await account.createEmailPasswordSession(email, password);
-            } catch {
-                throw new Error('فشل في إعادة تسجيل الدخول');
+            } catch (innerError: any) {
+                console.error('Inner login error after deleting session:', innerError);
+                throw new Error(innerError instanceof Error ? innerError.message : 'فشل في إعادة تسجيل الدخول بعد حذف الجلسة السابقة');
             }
         }
+        console.error('Login error details:', error);
         throw new Error(error instanceof Error ? error.message : 'فشل في تسجيل الدخول');
     }
 }
