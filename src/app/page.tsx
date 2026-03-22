@@ -6,14 +6,23 @@ import { TodayCard } from "@/components/dashboard/TodayCard";
 import { FortressGrid } from "@/components/dashboard/FortressGrid";
 import { TaskList } from "@/components/dashboard/TaskList";
 import { useUser } from "@/hooks/useUser";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { updateUserProfile } from "@/lib/appwrite/database";
 import { toast } from "sonner";
 import Link from "next/link";
 import { getDailyHadith } from "@/data/tips";
-import { parseMemorizedRanges, getTotalMemorizedPages } from "@/lib/husoon/memorization";
+import {
+  parseMemorizedRanges,
+  getTotalMemorizedPages,
+  addMemorizedRange,
+  serializeMemorizedRanges,
+} from "@/lib/husoon/memorization";
 import { estimateCompletionDate } from "@/lib/husoon/calculator";
-import { getPagesPerDayFromGoalType, DailyGoalType, UserProgress } from "@/lib/husoon/types";
+import {
+  getPagesPerDayFromGoalType,
+  DailyGoalType,
+  UserProgress,
+} from "@/lib/husoon/types";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 
@@ -29,11 +38,12 @@ export default function DashboardPage() {
   // Dynamic data from profile
   const ranges = profile ? parseMemorizedRanges(profile.memorizedRanges) : [];
   const totalMemorized = getTotalMemorizedPages(ranges);
-  const goalType = (profile?.dailyGoalType as DailyGoalType) || 'page';
+  const goalType = (profile?.dailyGoalType as DailyGoalType) || "page";
   const pagesPerDay = getPagesPerDayFromGoalType(goalType);
 
   // Estimated completion
-  const estimatedCompletion = profile ? (() => {
+  const estimatedCompletion = useMemo(() => {
+    if (!profile) return null;
     const progress: UserProgress = {
       memorizedRanges: ranges,
       dailyGoalType: goalType,
@@ -43,17 +53,23 @@ export default function DashboardPage() {
       startPage: profile.startPage || 1,
     };
     return estimateCompletionDate(progress);
-  })() : null;
+  }, [profile, ranges, goalType, pagesPerDay, totalMemorized]);
 
   // Daily hadith
   const dailyHadith = getDailyHadith();
 
   const handleFinishDay = async () => {
-    if (!profile) return;
+    if (!profile || !plan) return;
     setIsFinishing(true);
     try {
+      const newRanges = addMemorizedRange(ranges, {
+        from: plan.currentPage,
+        to: plan.currentPage + Math.max(1, Math.floor(pagesPerDay)) - 1,
+      });
+
       await updateUserProfile(profile.$id, {
         pagesDone: totalMemorized + pagesPerDay,
+        memorizedRanges: serializeMemorizedRanges(newRanges),
         streakCount: (profile.streakCount || 0) + 1,
         lastActiveDate: new Date().toISOString(),
       });
@@ -85,13 +101,15 @@ export default function DashboardPage() {
         <h2 className="font-serif text-3xl md:text-4xl text-primary leading-relaxed italic">
           &quot;{dailyHadith.text}&quot;
         </h2>
-        <p className="font-sans text-secondary font-medium">— {dailyHadith.source}</p>
+        <p className="font-sans text-secondary font-medium">
+          — {dailyHadith.source}
+        </p>
       </section>
 
       {/* Today Summary & Task Checklist */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         <div className="lg:col-span-8">
-          <TodayCard 
+          <TodayCard
             currentPage={plan?.currentPage || 0}
             completedTasks={completedTaskIds.length}
             totalTasks={plan?.tasks.length || 0}
@@ -110,8 +128,8 @@ export default function DashboardPage() {
       </div>
 
       {/* Fortress Grid — Dynamic */}
-      <FortressGrid 
-        tasks={plan?.tasks || []} 
+      <FortressGrid
+        tasks={plan?.tasks || []}
         completedTaskIds={completedTaskIds}
         totalMemorized={totalMemorized}
         dailyGoalType={goalType}
@@ -123,25 +141,30 @@ export default function DashboardPage() {
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-amber-600/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2"></div>
         <div className="relative space-y-4">
           <h2 className="font-serif text-3xl md:text-4xl text-emerald-100">
-            {isDayDone ? 'أحسنت! أتممت ورد اليوم 🎉' : 'هل أنت مستعد لمراجعة اليوم؟'}
+            {isDayDone
+              ? "أحسنت! أتممت ورد اليوم 🎉"
+              : "هل أنت مستعد لمراجعة اليوم؟"}
           </h2>
           <p className="text-emerald-300/70 max-w-xl mx-auto font-sans">
-            {totalMemorized >= 604 
-              ? 'ما شاء الله! أتممت حفظ القرآن كاملاً. حافظ على المراجعة الدائمة.'
-              : estimatedCompletion 
-                ? `الموعد المتوقع لإتمام الحفظ: ${format(estimatedCompletion, 'dd MMMM yyyy', { locale: ar })}. استمر على هذا النهج!`
-                : 'واصل الثبات والمراجعة لتحقيق أهدافك الإيمانية.'
-            }
+            {totalMemorized >= 604
+              ? "ما شاء الله! أتممت حفظ القرآن كاملاً. حافظ على المراجعة الدائمة."
+              : estimatedCompletion
+                ? `الموعد المتوقع لإتمام الحفظ: ${format(estimatedCompletion, "dd MMMM yyyy", { locale: ar })}. استمر على هذا النهج!`
+                : "واصل الثبات والمراجعة لتحقيق أهدافك الإيمانية."}
           </p>
         </div>
         <div className="relative flex flex-col md:flex-row justify-center gap-4">
-          <button 
+          <button
             disabled={!isDayDone || isFinishing}
             onClick={handleFinishDay}
-            className="bg-amber-500 text-emerald-950 px-10 py-4 rounded-2xl font-bold text-lg hover:bg-amber-400 transition-all shadow-xl shadow-amber-900/20 disabled:opacity-50 disabled:cursor-not-allowed w-full md:w-auto">
+            className="bg-amber-500 text-emerald-950 px-10 py-4 rounded-2xl font-bold text-lg hover:bg-amber-400 transition-all shadow-xl shadow-amber-900/20 disabled:opacity-50 disabled:cursor-not-allowed w-full md:w-auto"
+          >
             {isFinishing ? "جاري التسجيل..." : "تسجيل حفظ اليوم"}
           </button>
-          <Link href="/schedule" className="bg-emerald-900/50 text-emerald-100 border border-emerald-800 px-10 py-4 rounded-2xl font-bold text-lg hover:bg-emerald-800 transition-all text-center w-full md:w-auto">
+          <Link
+            href="/schedule"
+            className="bg-emerald-900/50 text-emerald-100 border border-emerald-800 px-10 py-4 rounded-2xl font-bold text-lg hover:bg-emerald-800 transition-all text-center w-full md:w-auto"
+          >
             عرض الخطة الأسبوعية
           </Link>
         </div>

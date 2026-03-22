@@ -5,9 +5,13 @@ import { getNextPageToMemorize } from "@/lib/husoon/memorization";
 
 interface WeeklyPlanProps {
   progress: UserProgress;
+  completionPercent?: number;
 }
 
-export function WeeklyPlan({ progress }: WeeklyPlanProps) {
+export function WeeklyPlan({
+  progress,
+  completionPercent = 0,
+}: WeeklyPlanProps) {
   const currentPage = getNextPageToMemorize(
     progress.memorizedRanges,
     progress.startPage,
@@ -61,11 +65,14 @@ export function WeeklyPlan({ progress }: WeeklyPlanProps) {
             مستوى الإنجاز الأسبوعي
           </span>
           <span className="font-sans text-xs font-bold text-primary-fixed">
-            ٤٥٪
+            {completionPercent}٪
           </span>
         </div>
         <div className="w-full bg-primary/30 h-1.5 rounded-full overflow-hidden">
-          <div className="bg-secondary-container h-full w-[45%]"></div>
+          <div
+            className="bg-secondary-container h-full transition-all duration-500"
+            style={{ width: `${completionPercent}%` }}
+          ></div>
         </div>
       </div>
     </div>
