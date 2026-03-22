@@ -2,6 +2,7 @@
 
 import { calculateFarReviewSchedule } from '@/lib/husoon/calculator';
 import { UserProgress } from '@/lib/husoon/types';
+import { getReferenceFromPageRange, getReferenceLabel } from '@/lib/quran/metadata';
 import { format, startOfWeek, addDays, isSameDay } from 'date-fns';
 import { ar } from 'date-fns/locale';
 
@@ -12,7 +13,7 @@ interface WeekViewProps {
 export function WeekView({ progress }: WeekViewProps) {
   const farSchedule = calculateFarReviewSchedule(progress);
   const today = new Date();
-  const weekStart = startOfWeek(today, { weekStartsOn: 6 }); // Starts on Saturday
+  const weekStart = startOfWeek(today, { weekStartsOn: 6 });
 
   const weekDays = Array.from({ length: 7 }, (_, i) => {
     const date = addDays(weekStart, i);
@@ -23,12 +24,10 @@ export function WeekView({ progress }: WeekViewProps) {
 
   return (
     <>
-      {weekDays.map(({ date, dayOfWeek, farReview }) => {
+      {weekDays.map(({ date, farReview }) => {
         const isToday = isSameDay(date, today);
-        
-        // Use different colors for the small dots based on review status
         const hasReview = !!farReview;
-        
+
         if (isToday) {
           return (
             <div key={date.toISOString()} className="bg-surface-container-lowest p-6 rounded-2xl flex flex-col items-center gap-3 ring-2 ring-primary/10 border-b-4 border-secondary shadow-xl shadow-primary/5 scale-[1.02] z-10 transition-transform md:col-span-1 col-span-2">
@@ -59,7 +58,9 @@ export function WeekView({ progress }: WeekViewProps) {
               {hasReview ? (
                 <>
                   <p className="text-[10px] font-sans font-bold text-primary">مراجعة بعيد</p>
-                  <p className="text-[10px] font-sans text-on-surface-variant">{farReview.pages.to - farReview.pages.from + 1} صفحة</p>
+                  <p className="text-[10px] font-sans text-on-surface-variant">
+                    {getReferenceLabel(getReferenceFromPageRange(farReview.pages.from, farReview.pages.to))}
+                  </p>
                 </>
               ) : (
                 <p className="text-[10px] font-sans font-bold text-primary">تثبيت أسبوعي</p>

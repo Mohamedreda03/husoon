@@ -2,13 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BookOpen, Timer, CalendarDays, TrendingUp, Settings } from 'lucide-react';
+import { BookOpen, Timer, CalendarDays, TrendingUp, Settings, BookOpenText } from 'lucide-react';
 
 export function MobileNav() {
   const pathname = usePathname();
 
   const navItems = [
     { name: 'اليوم', href: '/', icon: BookOpen },
+    { name: 'القرآن', href: '/quran', icon: BookOpenText },
     { name: 'المؤقت', href: '/timer', icon: Timer },
     { name: 'الجدول', href: '/schedule', icon: CalendarDays },
     { name: 'التقدم', href: '/stats', icon: TrendingUp },
@@ -21,8 +22,8 @@ export function MobileNav() {
         {navItems.map((item) => {
           const isActive = pathname === item.href;
           return (
-            <Link 
-              key={item.href} 
+            <Link
+              key={item.href}
               href={item.href}
               className={`flex flex-col items-center justify-center gap-1 transition-all duration-200 ${
                 isActive ? 'text-primary' : 'text-muted-foreground hover:text-primary/70'

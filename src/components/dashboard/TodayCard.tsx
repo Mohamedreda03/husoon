@@ -1,6 +1,8 @@
 'use client';
 
+import { ReferenceBadge } from '@/components/quran/ReferenceBadge';
 import { getPageInfo } from '@/data/quranPages';
+import { getReferenceFromPageRange } from '@/lib/quran/metadata';
 import { CheckCircle2 } from 'lucide-react';
 
 interface TodayCardProps {
@@ -15,6 +17,7 @@ interface TodayCardProps {
 export function TodayCard({ currentPage, completedTasks, totalTasks, onFinishDay, isDayDone, isFinishing }: TodayCardProps) {
   const pageInfo = getPageInfo(currentPage);
   const progressPercent = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
+  const todayReference = currentPage > 0 ? getReferenceFromPageRange(currentPage, currentPage) : undefined;
 
   return (
     <div className="bg-surface-container-low rounded-3xl p-8 h-full relative overflow-hidden group border border-primary/10 shadow-sm">
@@ -28,6 +31,7 @@ export function TodayCard({ currentPage, completedTasks, totalTasks, onFinishDay
           <div className="space-y-1">
             <span className="text-secondary font-bold text-sm tracking-widest uppercase">اليوم</span>
             <h3 className="text-3xl font-serif font-bold text-primary">المراجعة الحالية: صفحة {currentPage}</h3>
+            <ReferenceBadge reference={todayReference} title="المراجعة الحالية" className="mt-3" />
           </div>
           <div className="flex flex-wrap items-center gap-8">
             <div className="space-y-1">
@@ -45,12 +49,12 @@ export function TodayCard({ currentPage, completedTasks, totalTasks, onFinishDay
             </div>
           </div>
         </div>
-        <button 
+        <button
           disabled={!isDayDone || isFinishing}
           onClick={onFinishDay}
           className={`px-8 py-4 shrink-0 rounded-xl font-bold flex items-center justify-center gap-2 transition-all w-full md:w-auto
-            ${isDayDone 
-              ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20' 
+            ${isDayDone
+              ? 'bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20'
               : 'bg-muted text-muted-foreground cursor-not-allowed border'
             }`}
         >

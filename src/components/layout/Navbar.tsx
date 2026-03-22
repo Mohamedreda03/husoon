@@ -2,7 +2,8 @@
 
 import { useUser } from '@/hooks/useUser';
 import { usePathname } from 'next/navigation';
-import { Search, Bell, CalendarDays, LogOut } from 'lucide-react';
+import { Bell, CalendarDays, LogOut } from 'lucide-react';
+import { QuranSearch } from '@/components/quran/QuranSearch';
 
 export function Navbar() {
   const { logout } = useUser();
@@ -15,13 +16,8 @@ export function Navbar() {
 
   return (
     <header className="fixed top-0 left-0 right-0 md:right-64 h-20 bg-background/80 backdrop-blur-xl flex justify-between items-center px-4 md:px-12 z-40 border-b border-primary/5">
-      <div className="flex items-center bg-surface-container-low px-4 py-2 rounded-full w-full max-w-sm md:w-96">
-        <Search className="w-5 h-5 text-outline" />
-        <input 
-          className="bg-transparent border-none focus:ring-0 focus:outline-none text-sm w-full font-serif mr-2 text-foreground" 
-          placeholder="البحث في السور والأجزاء..." 
-          type="text"
-        />
+      <div className="bg-surface-container-low px-2 py-1 rounded-full w-full max-w-sm md:w-96">
+        <QuranSearch variant="navbar" />
       </div>
       
       <div className="flex items-center gap-4 md:gap-6">

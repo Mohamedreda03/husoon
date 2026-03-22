@@ -1,9 +1,12 @@
 "use client";
 
+import Link from "next/link";
+import { ReferenceBadge } from "@/components/quran/ReferenceBadge";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { calculateFarReviewSchedule } from "@/lib/husoon/calculator";
 import { UserProgress } from "@/lib/husoon/types";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Info, History } from "lucide-react";
+import { getReaderHref, getReferenceFromPageRange } from "@/lib/quran/metadata";
+import { History, Info } from "lucide-react";
 
 interface PipelineTableProps {
   progress: UserProgress;
@@ -37,7 +40,7 @@ export function PipelineTable({ progress }: PipelineTableProps) {
         </div>
         <span className="px-3 py-1 bg-secondary-container text-on-secondary-container text-[10px] font-bold rounded-full uppercase tracking-wider">الأولوية القصوى</span>
       </div>
-      
+
       <div className="overflow-x-auto">
         <table className="w-full text-right">
           <thead>
@@ -51,8 +54,8 @@ export function PipelineTable({ progress }: PipelineTableProps) {
           <tbody className="divide-y divide-surface-container-high/50 font-sans text-sm">
             {farSchedule.map((item, index) => {
               const isToday = item.dayOfWeek === todayDayOfWeek;
-              // Add specific styling based on whether it is today
-              
+              const reference = getReferenceFromPageRange(item.pages.from, item.pages.to);
+
               return (
                 <tr
                   key={index}
@@ -65,13 +68,22 @@ export function PipelineTable({ progress }: PipelineTableProps) {
                     <span className="px-2 py-0.5 bg-surface-container-high rounded-full dir-ltr inline-block">
                       ص {item.pages.from} - {item.pages.to}
                     </span>
+                    <ReferenceBadge
+                      reference={reference}
+                      title={`مراجعة البعيد - ${item.dayName}`}
+                      className="mt-2"
+                      compact
+                    />
                   </td>
                   <td className="py-4 px-2 text-center">{item.count} صفحة</td>
                   <td className="py-4 px-2 text-left">
                     {isToday ? (
-                      <button className="px-4 py-1.5 bg-secondary text-on-secondary rounded-lg text-xs font-bold shadow-md shadow-secondary/20 hover:scale-105 transition-transform">
-                        بدء الآن
-                      </button>
+                      <Link
+                        href={getReaderHref(reference, `مراجعة البعيد - ${item.dayName}`)}
+                        className="inline-flex px-4 py-1.5 bg-secondary text-on-secondary rounded-lg text-xs font-bold shadow-md shadow-secondary/20 hover:scale-105 transition-transform"
+                      >
+                        ابدأ الآن
+                      </Link>
                     ) : (
                       <span className="text-on-surface-variant/40">{item.estimatedMinutes} دقيقة</span>
                     )}

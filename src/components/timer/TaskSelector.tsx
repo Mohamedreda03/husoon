@@ -1,9 +1,9 @@
 'use client';
 
+import { ReferenceBadge } from '@/components/quran/ReferenceBadge';
 import { HusoonTask } from '@/lib/husoon/types';
 import { useTimerStore } from '@/stores/timerStore';
-import { Card, CardContent } from '@/components/ui/card';
-import { CheckCircle2, Circle, Clock } from 'lucide-react';
+import { CheckCircle2, Clock } from 'lucide-react';
 
 interface TaskSelectorProps {
   tasks: HusoonTask[];
@@ -28,12 +28,12 @@ export function TaskSelector({ tasks, completedTaskIds }: TaskSelectorProps) {
           const isCompleted = completedTaskIds.includes(task.id);
 
           return (
-            <div 
+            <div
               key={task.id}
               onClick={() => selectTask(task.id, task.name, task.durationMinutes)}
               className={`p-5 rounded-2xl flex items-center gap-4 transition-colors cursor-pointer ${
-                isSelected 
-                  ? 'bg-surface-container-lowest border-r-4 border-secondary shadow-sm' 
+                isSelected
+                  ? 'bg-surface-container-lowest border-r-4 border-secondary shadow-sm'
                   : 'bg-surface/50 hover:bg-surface-container-highest'
               } ${isCompleted ? 'opacity-60' : ''}`}
             >
@@ -41,25 +41,31 @@ export function TaskSelector({ tasks, completedTaskIds }: TaskSelectorProps) {
                 isSelected ? 'bg-secondary/10 text-secondary' : 'bg-emerald-100 text-emerald-900'
               }`}>
                 {!isCompleted ? (
-                   <Clock className="w-5 h-5" />
+                  <Clock className="w-5 h-5" />
                 ) : (
-                   <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600" />
                 )}
               </div>
-              
+
               <div className="flex-1 text-right">
-                <h4 className={`font-sans font-bold text-sm ${isSelected ? 'text-emerald-900' : 'text-emerald-900'}`}>{task.name}</h4>
+                <h4 className="font-sans font-bold text-sm text-emerald-900">{task.name}</h4>
                 <p className="font-sans text-xs text-emerald-800/60">الحصن {task.fortressNumber} • {task.durationMinutes} دقيقة</p>
+                <ReferenceBadge
+                  reference={task.references?.[0]}
+                  title={task.name}
+                  className="mt-2"
+                  compact
+                />
               </div>
 
               {isSelected && !isCompleted && (
-                 <CheckCircle2 className="w-5 h-5 text-secondary" />
+                <CheckCircle2 className="w-5 h-5 text-secondary" />
               )}
             </div>
           );
         })}
       </div>
-      
+
       <button className="w-full py-4 border-2 border-dashed border-outline-variant rounded-2xl text-emerald-800/40 font-sans text-sm hover:border-secondary hover:text-secondary transition-all">
         + إضافة ورد جديد
       </button>

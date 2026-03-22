@@ -1,7 +1,9 @@
 "use client";
 
-import { UserProgress } from "@/lib/husoon/types";
+import { ReferenceBadge } from "@/components/quran/ReferenceBadge";
 import { getNextPageToMemorize } from "@/lib/husoon/memorization";
+import { UserProgress } from "@/lib/husoon/types";
+import { getReferenceFromPageRange } from "@/lib/quran/metadata";
 
 interface WeeklyPlanProps {
   progress: UserProgress;
@@ -17,7 +19,15 @@ export function WeeklyPlan({
     progress.startPage,
   );
 
-  // Create strategy steps based on current progress
+  const weeklyReference = getReferenceFromPageRange(
+    Math.min(604, currentPage + 1),
+    Math.min(604, currentPage + 7),
+  );
+  const nightlyReference = getReferenceFromPageRange(
+    Math.min(604, currentPage + 1),
+    Math.min(604, currentPage + 1),
+  );
+
   const strategies = [
     {
       title: "التركيز على مراجعة البعيد",
@@ -54,6 +64,22 @@ export function WeeklyPlan({
               <p className="font-sans text-xs opacity-70 mt-1 text-surface">
                 {strategy.desc}
               </p>
+              {i === 1 && (
+                <ReferenceBadge
+                  reference={weeklyReference}
+                  title="التحضير الأسبوعي"
+                  className="mt-2 border-white/10 bg-white/10 text-white hover:bg-white/15"
+                  compact
+                />
+              )}
+              {i === 2 && (
+                <ReferenceBadge
+                  reference={nightlyReference}
+                  title="التحضير الليلي"
+                  className="mt-2 border-white/10 bg-white/10 text-white hover:bg-white/15"
+                  compact
+                />
+              )}
             </div>
           </div>
         ))}

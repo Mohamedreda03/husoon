@@ -1,5 +1,6 @@
 'use client';
 
+import { ReferenceBadge } from '@/components/quran/ReferenceBadge';
 import { HusoonTask } from '@/lib/husoon/types';
 import { useRouter } from 'next/navigation';
 import { useTimerStore } from '@/stores/timerStore';
@@ -20,7 +21,6 @@ export function TaskList({ tasks, completedTaskIds, onToggleTask }: TaskListProp
     router.push('/timer');
   };
 
-  // Sort tasks by time of day
   const timeWeight = { morning: 0, anytime: 1, evening: 2, night: 3 };
   const sortedTasks = [...tasks].sort((a, b) => timeWeight[a.timeOfDay] - timeWeight[b.timeOfDay]);
 
@@ -30,30 +30,38 @@ export function TaskList({ tasks, completedTaskIds, onToggleTask }: TaskListProp
       <ul className="space-y-4">
         {sortedTasks.map((task) => {
           const isCompleted = completedTaskIds.includes(task.id);
-          
+
           return (
-            <li 
-              key={task.id} 
+            <li
+              key={task.id}
               className="flex items-center gap-4 group cursor-pointer"
               onClick={() => onToggleTask(task.id)}
             >
-              <div 
+              <div
                 className={`w-6 h-6 shrink-0 rounded-lg flex items-center justify-center transition-colors 
-                  ${isCompleted 
-                    ? 'bg-emerald-100 text-emerald-600' 
+                  ${isCompleted
+                    ? 'bg-emerald-100 text-emerald-600'
                     : 'border-2 border-emerald-100 group-hover:border-emerald-500'
                   }`}
               >
                 {isCompleted && <Check className="w-4 h-4" strokeWidth={3} />}
               </div>
-              
+
               <div className="flex-1 flex items-center justify-between gap-2 overflow-hidden">
-                <span className={`text-sm truncate transition-colors ${isCompleted ? 'text-on-surface-variant line-through' : 'text-on-surface font-medium'}`}>
-                  {task.name}
-                </span>
-                
+                <div className="min-w-0">
+                  <span className={`block text-sm truncate transition-colors ${isCompleted ? 'text-on-surface-variant line-through' : 'text-on-surface font-medium'}`}>
+                    {task.name}
+                  </span>
+                  <ReferenceBadge
+                    reference={task.references?.[0]}
+                    title={task.name}
+                    className="mt-1"
+                    compact
+                  />
+                </div>
+
                 {!isCompleted && (
-                  <button 
+                  <button
                     onClick={(e) => { e.stopPropagation(); handleStartTimer(task); }}
                     className="text-xs font-bold text-primary bg-primary/5 hover:bg-primary/10 px-3 py-1 rounded-full transition-colors shrink-0"
                   >

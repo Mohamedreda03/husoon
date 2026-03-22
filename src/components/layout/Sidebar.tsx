@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, CalendarDays, EyeOff, TrendingUp, Settings } from 'lucide-react';
+import { LayoutDashboard, CalendarDays, EyeOff, TrendingUp, Settings, BookOpenText } from 'lucide-react';
 import { useUser } from '@/hooks/useUser';
 import { useTodayPlan } from '@/hooks/useTodayPlan';
 
@@ -11,13 +11,13 @@ export function Sidebar() {
   const { user } = useUser();
   const { profile } = useTodayPlan();
 
-  // Hide sidebar on auth pages only
   if (pathname === '/login' || pathname === '/register') {
     return null;
   }
 
   const navItems = [
     { name: 'لوحة التحكم', href: '/', icon: LayoutDashboard },
+    { name: 'القرآن', href: '/quran', icon: BookOpenText },
     { name: 'الجدول الزمني', href: '/schedule', icon: CalendarDays },
     { name: 'وضع التركيز', href: '/timer', icon: EyeOff },
     { name: 'الإحصائيات', href: '/stats', icon: TrendingUp },
@@ -57,7 +57,7 @@ export function Sidebar() {
             <span>ابدأ المراجعة</span>
           </button>
         </Link>
-        
+
         <div className="mt-6 flex items-center gap-3 py-4 border-t border-emerald-900/50">
           <div className="w-10 h-10 rounded-full bg-emerald-800 flex items-center justify-center text-emerald-100 font-bold">
             {user?.name?.charAt(0) || 'م'}
