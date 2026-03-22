@@ -1,0 +1,25 @@
+{
+  "cookies": [
+    {
+      "name": "a_session_69bd546a000512a43aac",
+      "value": "eyJpZCI6IjY5YmZmYzdlMDAwMWJlMjAzZTNkIiwic2VjcmV0IjoiNDQ3YTYyMjk2NmRiNDdhYTY3MzY4N2M0YTlkYWEzNjQwYTkzMDgyMjZmMjEyYjIwMTYyMjgyZWQ5MmVmMmE0NTA1YWE3NzI4OGRhZjNlMDcwNDAxNjU3YjM1NjFmMmNmMjUyZjlhYjc1OGQzZDRkZWNlNWRkMmJkNDVhODlhMzc3MWE3NzQwN2JlOWUzYjRjNmJjMzNkMTY3NzhmYzcxZjA5NmExODYwMDUyMjhmNjgyN2E0YzQxY2YzZWQ1OWU5ODlkMzQxOWZmNGQ5NzczNjVmMTVhZWRjMGYxOTNkMzI3NjkxOWEwZmUwZWUzNzM3ZDY4MDYzNzg0MzdlN2ZiOCJ9",
+      "domain": ".fra.cloud.appwrite.io",
+      "path": "/",
+      "expires": 1805728517.318854,
+      "httpOnly": true,
+      "secure": true,
+      "sameSite": "None"
+    }
+  ],
+  "origins": [
+    {
+      "origin": "http://localhost:3000",
+      "localStorage": [
+        {
+          "name": "cookieFallback",
+          "value": "{\"a_session_69bd546a000512a43aac\":\"eyJpZCI6IjY5YmZmYzdlMDAwMWJlMjAzZTNkIiwic2VjcmV0IjoiNDQ3YTYyMjk2NmRiNDdhYTY3MzY4N2M0YTlkYWEzNjQwYTkzMDgyMjZmMjEyYjIwMTYyMjgyZWQ5MmVmMmE0NTA1YWE3NzI4OGRhZjNlMDcwNDAxNjU3YjM1NjFmMmNmMjUyZjlhYjc1OGQzZDRkZWNlNWRkMmJkNDVhODlhMzc3MWE3NzQwN2JlOWUzYjRjNmJjMzNkMTY3NzhmYzcxZjA5NmExODYwMDUyMjhmNjgyN2E0YzQxY2YzZWQ1OWU5ODlkMzQxOWZmNGQ5NzczNjVmMTVhZWRjMGYxOTNkMzI3NjkxOWEwZmUwZWUzNzM3ZDY4MDYzNzg0MzdlN2ZiOCJ9\"}"
+        }
+      ]
+    }
+  ]
+}

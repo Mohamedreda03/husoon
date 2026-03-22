@@ -3,8 +3,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 
 /**
- * Read environment variables from file.
- * https://github.com/motdotla/dotenv
+ * Read environment variables from .env.test
  */
 dotenv.config({ path: path.resolve(__dirname, '.env.test') });
 
@@ -23,12 +22,12 @@ export default defineConfig({
   workers: process.env.CI ? 1 : undefined,
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: 'html',
-  /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
+  /* Shared settings for all the projects below. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
     baseURL: 'http://localhost:3000',
 
-    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
+    /* Collect trace when retrying the failed test. */
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
@@ -38,30 +37,46 @@ export default defineConfig({
     timeout: 10000,
   },
 
-  /* Configure projects for major browsers */
+  /* Configure projects */
   projects: [
+    // Setup project — runs first to authenticate
+    {
+      name: 'setup',
+      testMatch: /global-setup\.ts/,
+    },
+
+    // Main tests — use saved auth state
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      testIgnore: /auth\.spec\.ts|global-setup\.ts/,
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: 'e2e/.auth/user.json',
+      },
+      dependencies: ['setup'],
     },
 
+    // Auth tests — run WITHOUT stored auth (need fresh pages)
     {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
+      name: 'auth-tests',
+      testMatch: /auth\.spec\.ts/,
+      use: {
+        ...devices['Desktop Chrome'],
+        // No storageState — tests control their own auth
+      },
+      dependencies: ['setup'],
     },
 
+    // Mobile tests
     {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
-    /* Test against mobile viewports. */
-    {
-      name: 'Mobile Chrome',
-      use: { ...devices['Pixel 5'] },
-    },
-    {
-      name: 'Mobile Safari',
-      use: { ...devices['iPhone 12'] },
+      name: 'mobile',
+      testMatch: /navigation\.spec\.ts/,
+      testIgnore: /auth\.spec\.ts|global-setup\.ts/,
+      use: {
+        ...devices['Pixel 5'],
+        storageState: 'e2e/.auth/user.json',
+      },
+      dependencies: ['setup'],
     },
   ],
 
