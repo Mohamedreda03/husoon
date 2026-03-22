@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import { Cairo, Amiri } from "next/font/google";
+import { Cairo, Amiri, Scheherazade_New } from "next/font/google";
 import "./globals.css";
 import { AppwriteProvider } from "@/providers/AppwriteProvider";
 import QueryProvider from "@/providers/QueryProvider";
 import { AuthGuard } from "@/providers/AuthGuard";
-import { Toaster } from 'sonner';
-import { MobileNav } from '@/components/layout/MobileNav';
-import { Navbar } from '@/components/layout/Navbar';
-import { Sidebar } from '@/components/layout/Sidebar';
+import { Toaster } from "sonner";
+import { MobileNav } from "@/components/layout/MobileNav";
+import { Navbar } from "@/components/layout/Navbar";
+import { Sidebar } from "@/components/layout/Sidebar";
 
 const cairo = Cairo({
   subsets: ["arabic"],
@@ -18,6 +18,12 @@ const cairo = Cairo({
 const amiri = Amiri({
   subsets: ["arabic"],
   variable: "--font-amiri",
+  weight: ["400", "700"],
+});
+
+const quranFont = Scheherazade_New({
+  subsets: ["arabic"],
+  variable: "--font-quran",
   weight: ["400", "700"],
 });
 
@@ -32,16 +38,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ar" dir="rtl" className={`${cairo.variable} ${amiri.variable}`}>
+    <html
+      lang="ar"
+      dir="rtl"
+      className={`${cairo.variable} ${amiri.variable} ${quranFont.variable}`}
+    >
       <body className="font-sans bg-background text-foreground antialiased min-h-screen pb-16 md:pb-0">
         <QueryProvider>
           <AppwriteProvider>
             <AuthGuard>
               <Sidebar />
               <Navbar />
-              <div className="md:mr-64 pt-20">
-                {children}
-              </div>
+              <div className="md:mr-64 pt-20">{children}</div>
               <MobileNav />
               <Toaster richColors position="top-center" />
             </AuthGuard>

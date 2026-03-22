@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@200..1000&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@200..1000&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -10,7 +10,8 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-cairo), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-amiri), ui-serif, Georgia, serif;
-  
+  --font-quran: var(--font-quran), var(--font-amiri), serif;
+
   --color-surface-container-highest: #e5e2dc;
   --color-surface-container: #f0eee8;
   --color-on-secondary-container: #785210;
@@ -97,34 +98,34 @@
 :root {
   --background: #fcf9f3;
   --foreground: #1c1c18;
-  
+
   --card: #ffffff;
   --card-foreground: #1c1c18;
-  
+
   --popover: #ffffff;
   --popover-foreground: #1c1c18;
-  
+
   --primary-foreground: #ffffff;
   --secondary-foreground: #ffffff;
-  
+
   --muted: #f6f3ed;
   --muted-foreground: #404946;
-  
-  --accent: #fdc97d; 
+
+  --accent: #fdc97d;
   --accent-foreground: #785210;
-  
+
   --destructive: #ba1a1a;
   --border: #707976;
   --input: #bfc9c4;
   --ring: #004338;
-  
+
   --chart-1: #004338;
   --chart-2: #7d5715;
-  
+
   --radius: 0.75rem;
-  
-  --font-amiri: 'Amiri', serif;
-  --font-cairo: 'Cairo', sans-serif;
+
+  --font-amiri: "Amiri", serif;
+  --font-cairo: "Cairo", sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -134,7 +135,6 @@
   }
 }
 
-
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -143,7 +143,13 @@
     @apply bg-background text-foreground font-sans antialiased;
     direction: rtl;
   }
-  h1, h2, h3, h4, h5, h6, .font-serif {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  .font-serif {
     @apply font-serif;
   }
 }

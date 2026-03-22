@@ -32,7 +32,12 @@ function readPageValue(
   return Number.isFinite(parsed) ? clampPage(parsed) : fallback;
 }
 
-function buildPageHref(page: number, fromPage: number, toPage: number, title?: string) {
+function buildPageHref(
+  page: number,
+  fromPage: number,
+  toPage: number,
+  title?: string,
+) {
   const params = new URLSearchParams({
     page: String(page),
     fromPage: String(fromPage),
@@ -78,24 +83,40 @@ export default async function QuranPage({
                   <span>{title || "مصحف حصون"}</span>
                 </div>
                 <div>
-                  <h1 className="font-serif text-4xl text-primary">القرآن الكريم</h1>
+                  <h1 className="font-serif text-4xl text-primary">
+                    القرآن الكريم
+                  </h1>
                   <p className="mt-2 text-sm text-on-surface-variant">
-                    {getReferenceLabel(selectedRange)} · {getReferenceMetaLabel(selectedRange)}
+                    {getReferenceLabel(selectedRange)} ·{" "}
+                    {getReferenceMetaLabel(selectedRange)}
                   </p>
                 </div>
-                <ReferenceBadge reference={selectedRange} title={title || "القرآن الكريم"} />
+                <ReferenceBadge
+                  reference={selectedRange}
+                  title={title || "القرآن الكريم"}
+                />
               </div>
 
               <div className="flex flex-wrap gap-3">
                 <Link
-                  href={buildPageHref(Math.max(1, currentPage - 1), selectedRange.pageStart, selectedRange.pageEnd, title)}
+                  href={buildPageHref(
+                    Math.max(1, currentPage - 1),
+                    selectedRange.pageStart,
+                    selectedRange.pageEnd,
+                    title,
+                  )}
                   className="inline-flex items-center gap-2 rounded-xl border border-primary/10 bg-background px-4 py-2 text-sm font-bold text-primary hover:bg-primary/5"
                 >
                   <ChevronRight className="h-4 w-4" />
                   <span>الصفحة السابقة</span>
                 </Link>
                 <Link
-                  href={buildPageHref(Math.min(604, currentPage + 1), selectedRange.pageStart, selectedRange.pageEnd, title)}
+                  href={buildPageHref(
+                    Math.min(604, currentPage + 1),
+                    selectedRange.pageStart,
+                    selectedRange.pageEnd,
+                    title,
+                  )}
                   className="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm font-bold text-primary-foreground hover:bg-primary/90"
                 >
                   <span>الصفحة التالية</span>
@@ -109,25 +130,49 @@ export default async function QuranPage({
         <section className="grid gap-8 lg:grid-cols-[280px_minmax(0,1fr)]">
           <aside className="space-y-6">
             <div className="rounded-[2rem] border border-primary/10 bg-surface-container-low p-6 shadow-sm">
-              <h2 className="font-serif text-2xl text-primary mb-4">بحث سريع</h2>
+              <h2 className="font-serif text-2xl text-primary mb-4">
+                بحث سريع
+              </h2>
               <QuranSearch />
-              
+
               <div className="mt-8 space-y-2 text-sm text-on-surface-variant border-t border-primary/5 pt-6">
-                <p>الصفحة الحالية: <span className="font-bold text-primary">{readerPage.page}</span></p>
-                <p>السورة: <span className="font-bold text-primary">{pageInfo.surah}</span></p>
-                <p>الجزء: <span className="font-bold text-primary">{readerPage.juz}</span></p>
+                <p>
+                  الصفحة الحالية:{" "}
+                  <span className="font-bold text-primary">
+                    {readerPage.page}
+                  </span>
+                </p>
+                <p>
+                  السورة:{" "}
+                  <span className="font-bold text-primary">
+                    {pageInfo.surah}
+                  </span>
+                </p>
+                <p>
+                  الجزء:{" "}
+                  <span className="font-bold text-primary">
+                    {readerPage.juz}
+                  </span>
+                </p>
               </div>
             </div>
 
             <div className="rounded-[2rem] border border-primary/10 bg-surface-container-low p-6 shadow-sm">
-              <h2 className="font-serif text-2xl text-primary">صفحات التكليف</h2>
+              <h2 className="font-serif text-2xl text-primary">
+                صفحات التكليف
+              </h2>
               <div className="mt-4 flex flex-wrap gap-2">
                 {pagesInRange.map((page) => {
                   const isActive = page === currentPage;
                   return (
                     <Link
                       key={page}
-                      href={buildPageHref(page, selectedRange.pageStart, selectedRange.pageEnd, title)}
+                      href={buildPageHref(
+                        page,
+                        selectedRange.pageStart,
+                        selectedRange.pageEnd,
+                        title,
+                      )}
                       className={`rounded-full px-3 py-1.5 text-sm font-bold transition-colors ${
                         isActive
                           ? "bg-primary text-primary-foreground"
@@ -146,18 +191,29 @@ export default async function QuranPage({
             <div className="rounded-[2.5rem] border border-primary/10 bg-white p-6 md:p-10 shadow-sm">
               <div className="mb-8 flex items-center justify-between border-b border-primary/10 pb-6">
                 <div>
-                  <p className="text-sm font-bold text-secondary">صفحة {readerPage.page}</p>
-                  <h2 className="font-serif text-3xl text-primary">{pageInfo.surah}</h2>
+                  <p className="text-sm font-bold text-secondary">
+                    صفحة {readerPage.page}
+                  </p>
+                  <h2 className="font-serif text-3xl text-primary">
+                    {pageInfo.surah}
+                  </h2>
                 </div>
-                <p className="text-sm text-on-surface-variant">الجزء {readerPage.juz}</p>
+                <p className="text-sm text-on-surface-variant">
+                  الجزء {readerPage.juz}
+                </p>
               </div>
 
               <div className="space-y-8">
                 {readerPage.segments.map((segment) => (
-                  <article key={`${segment.page}-${segment.surah}-${segment.ayahStart}`} className="space-y-4">
+                  <article
+                    key={`${segment.page}-${segment.surah}-${segment.ayahStart}`}
+                    className="space-y-4"
+                  >
                     <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-surface-container-low px-5 py-4">
                       <div>
-                        <h3 className="font-serif text-2xl text-primary">{segment.surahName}</h3>
+                        <h3 className="font-serif text-2xl text-primary">
+                          {segment.surahName}
+                        </h3>
                         <p className="text-xs text-on-surface-variant">
                           الآيات {segment.ayahStart}-{segment.ayahEnd}
                         </p>
@@ -168,14 +224,13 @@ export default async function QuranPage({
                     </div>
 
                     <div className="rounded-[2rem] bg-background/70 px-5 py-6">
-                      <p className="text-right font-serif text-3xl leading-[2.35] text-on-surface">
+                      <p className="text-right font-quran text-3xl leading-[2.35] text-on-surface">
                         {segment.verses.map((verse) => (
                           <span
                             key={`${segment.surah}-${verse.ayah}`}
                             className="inline"
                           >
-                            {verse.text}{" "}
-                            <AyahMarker ayah={verse.ayah} />{" "}
+                            {verse.text} <AyahMarker ayah={verse.ayah} />{" "}
                           </span>
                         ))}
                       </p>
