@@ -31,11 +31,12 @@ export async function registerUser(
 
     return userAccount;
   } catch (error: unknown) {
+    const err = error as AppwriteError;
     if (
       typeof error === "object" &&
       error !== null &&
       "code" in error &&
-      (error as any).code === 409
+      err.code === 409
     ) {
       throw new Error("هذا البريد الإلكتروني مسجل مسبقاً، يرجى تسجيل الدخول");
     }
@@ -61,11 +62,10 @@ export async function loginUser(email: string, password: string) {
         await account.deleteSession("current");
         return await account.createEmailPasswordSession(email, password);
       } catch (innerError: unknown) {
-        console.error("Inner login error after deleting session:", innerError);
+        const innerErr = innerError as AppwriteError;
+        console.error("Inner login error after deleting session:", innerErr);
         throw new Error(
-          innerError instanceof Error
-            ? innerError.message
-            : "فشل في إعادة تسجيل الدخول بعد حذف الجلسة السابقة",
+          innerErr.message || "فشل في إعادة تسجيل الدخول بعد حذف الجلسة السابقة",
         );
       }
     }
@@ -114,6 +114,7 @@ export async function createUserProfile(userId: string, name: string) {
         memorizedRanges: "[]",
         dailyGoalType: "page",
         dailyGoalValue: 1,
+        dailyGoalUnit: "face",
         timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       },
     );

@@ -194,7 +194,7 @@ export default async function QuranPage({
                   <p className="text-sm font-bold text-secondary">
                     صفحة {readerPage.page}
                   </p>
-                  <h2 className="font-serif text-3xl text-primary">
+                  <h2 className="font-serif text-3xl text-primary mt-4">
                     {pageInfo.surah}
                   </h2>
                 </div>
@@ -211,10 +211,10 @@ export default async function QuranPage({
                   >
                     <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-surface-container-low px-5 py-4">
                       <div>
-                        <h3 className="font-serif text-2xl text-primary">
+                        <h3 className="font-serif text-xl xs:text-2xl text-primary">
                           {segment.surahName}
                         </h3>
-                        <p className="text-xs text-on-surface-variant">
+                        <p className="text-xs text-on-surface-variant mt-2">
                           الآيات {segment.ayahStart}-{segment.ayahEnd}
                         </p>
                       </div>
@@ -223,8 +223,8 @@ export default async function QuranPage({
                       </span>
                     </div>
 
-                    <div className="rounded-[2rem] bg-background/70 px-5 py-6">
-                      <p className="text-right font-quran text-3xl leading-[2.35] text-on-surface">
+                    <div className="rounded-[2rem] bg-background/70 px-5 py-6 overflow-hidden">
+                      <p className="text-right font-quran text-2xl xs:text-3xl leading-[2.35] text-on-surface">
                         {segment.verses.map((verse) => (
                           <span
                             key={`${segment.surah}-${verse.ayah}`}

@@ -6,10 +6,9 @@ import { ProgressBars } from '@/components/stats/ProgressBars';
 import { ActivityChart } from '@/components/stats/ActivityChart';
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
-import { Award, Star, Medal, Trophy, Brain, Edit3 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
-import { isPageMemorized } from '@/lib/husoon/memorization';
+import { getAchievements } from '@/lib/husoon/achievements';
 
 export default function StatsPage() {
   const { data: stats, isLoading } = useStats();
@@ -35,50 +34,9 @@ export default function StatsPage() {
 
   // Dynamic achievements based on actual stats
   const ranges = stats.memorizedRanges || [];
-  const ACHIEVEMENTS = [
-    { 
-      name: 'ختم البقرة', 
-      icon: Award, 
-      active: (() => {
-        // Check if pages 2-49 are all memorized (Al-Baqarah)
-        for (let p = 2; p <= 49; p++) {
-          if (!isPageMemorized(ranges, p)) return false;
-        }
-        return true;
-      })(),
-      color: 'bg-secondary-fixed text-on-secondary-container' 
-    },
-    { 
-      name: 'أول جزء', 
-      icon: Star, 
-      active: stats.memorizedJuz.length >= 1,
-      color: 'bg-primary-fixed text-on-primary-fixed-variant' 
-    },
-    { 
-      name: 'ثبات 30 يوم', 
-      icon: Medal, 
-      active: stats.streakCount >= 30,
-      color: 'bg-primary-fixed text-on-primary-fixed-variant' 
-    },
-    { 
-      name: '100 صفحة', 
-      icon: Trophy, 
-      active: stats.pagesDone >= 100,
-      color: 'bg-tertiary-fixed text-on-tertiary-fixed-variant' 
-    },
-    { 
-      name: '10 أجزاء', 
-      icon: Brain, 
-      active: stats.memorizedJuz.length >= 10,
-      color: 'bg-tertiary-fixed text-on-tertiary-fixed-variant' 
-    },
-    { 
-      name: 'خاتم القرآن', 
-      icon: Edit3, 
-      active: stats.pagesDone >= 604,
-      color: 'bg-secondary-fixed text-on-secondary-container' 
-    },
-  ];
+  const juzCount = stats.memorizedJuz.length;
+
+  const ACHIEVEMENTS = getAchievements(ranges, juzCount, stats.pagesDone, stats.streakCount);
 
   return (
     <div className="min-h-screen bg-background">

@@ -4,10 +4,9 @@ import { useQuery } from '@tanstack/react-query';
 import { useUser } from './useUser';
 import { getUserProfile } from '@/lib/appwrite/database';
 import { calculateDayPlan } from '@/lib/husoon/engine';
-import { UserProgress } from '@/lib/husoon/types';
 import { parseMemorizedRanges, getTotalMemorizedPages } from '@/lib/husoon/memorization';
-import { getPagesPerDayFromGoalType } from '@/lib/husoon/types';
-import type { DailyGoalType } from '@/lib/husoon/types';
+import { getPagesPerDayFromGoalType, CustomGoalUnit, getTrackingModeFromUnit } from '@/lib/husoon/types';
+import type { DailyGoalType, UserProgress } from '@/lib/husoon/types';
 
 export function useTodayPlan() {
   const { user } = useUser();
@@ -22,19 +21,28 @@ export function useTodayPlan() {
     ? (() => {
         const ranges = parseMemorizedRanges(profileQuery.data.memorizedRanges);
         const goalType = (profileQuery.data.dailyGoalType as DailyGoalType) || 'page';
-        const pagesPerDay = getPagesPerDayFromGoalType(goalType);
+        const goalUnit = (profileQuery.data.dailyGoalUnit as CustomGoalUnit) || 'face';
+        const pagesPerDay = getPagesPerDayFromGoalType(
+          goalType, 
+          profileQuery.data.dailyGoalValue,
+          goalUnit
+        );
         const totalMemorized = getTotalMemorizedPages(ranges);
 
         const progress: UserProgress = {
           memorizedRanges: ranges,
           dailyGoalType: goalType,
           dailyGoalValue: profileQuery.data.dailyGoalValue || 1,
+          dailyGoalUnit: goalUnit,
           pagesDone: totalMemorized,
           pagesPerDay: pagesPerDay,
           startPage: profileQuery.data.startPage || 1,
         };
 
-        return calculateDayPlan(progress, new Date());
+        return {
+          ...calculateDayPlan(progress, new Date()),
+          trackingMode: getTrackingModeFromUnit(goalUnit),
+        };
       })()
     : null;
 

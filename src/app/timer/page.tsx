@@ -13,6 +13,7 @@ export default function TimerPage() {
   const { log, toggleTask, isLoading: isLogLoading } = useDailyLog();
   const { selectedTaskId, selectedTaskName, complete } = useTimerStore();
 
+  const trackingMode = plan?.trackingMode || 'page';
   const dailyTip = getDailyTip();
 
   const handleCompleteSession = () => {
@@ -39,7 +40,7 @@ export default function TimerPage() {
             
             {/* Centerpiece: Timer Display */}
             <div className="lg:col-span-7 flex flex-col items-center justify-center space-y-12 h-full">
-              <TimerDisplay onComplete={handleCompleteSession} />
+              <TimerDisplay onComplete={handleCompleteSession} trackingMode={trackingMode} />
             </div>
 
             {/* Right Sidebar: Tasks & Guidance */}

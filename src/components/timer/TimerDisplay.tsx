@@ -1,15 +1,15 @@
 'use client';
 
 import { useTimerStore } from '@/stores/timerStore';
-import { Button } from '@/components/ui/button';
 import { Play, Pause, RotateCcw, CheckCircle2 } from 'lucide-react';
 import { useEffect } from 'react';
 
 interface TimerDisplayProps {
   onComplete?: () => void;
+  trackingMode?: 'page' | 'verse';
 }
 
-export function TimerDisplay({ onComplete }: TimerDisplayProps) {
+export function TimerDisplay({ onComplete, trackingMode = 'page' }: TimerDisplayProps) {
   const { 
     secondsRemaining, 
     totalDurationSeconds, 
@@ -52,7 +52,7 @@ export function TimerDisplay({ onComplete }: TimerDisplayProps) {
       <div className="absolute inset-0 bg-emerald-100 blur-[80px] opacity-30 rounded-full animate-pulse z-0 pointer-events-none scale-75"></div>
       
       {/* Circular Timer Visual */}
-      <div className="relative w-72 h-72 md:w-[420px] md:h-[420px] rounded-full bg-surface-container-lowest border-12 border-surface-container-low flex items-center justify-center shadow-2xl shadow-emerald-900/5 z-10 transition-transform">
+      <div className="relative w-full max-w-64 aspect-square md:max-w-[420px] rounded-full bg-surface-container-lowest border-12 border-surface-container-low flex items-center justify-center shadow-2xl shadow-emerald-900/5 z-10 transition-transform">
         {/* Progress Ring */}
         <svg className="absolute inset-0 w-full h-full -rotate-90">
           <circle className="text-secondary/10" cx="50%" cy="50%" fill="transparent" r="46%" stroke="currentColor" strokeWidth="12"></circle>
@@ -71,7 +71,9 @@ export function TimerDisplay({ onComplete }: TimerDisplayProps) {
         </svg>
 
         <div className="text-center z-10 w-full px-8">
-          <span className="font-sans text-emerald-800/40 text-sm tracking-[0.2em] mb-2 block uppercase">الوقت المتبقي</span>
+          <span className="font-sans text-emerald-800/40 text-sm tracking-[0.2em] mb-2 block uppercase">
+            {trackingMode === 'page' ? 'تركيز على الصفحة' : 'تركيز على الآيات'}
+          </span>
           <div className={`font-serif text-6xl md:text-8xl font-bold flex justify-center items-center gap-2 ${isWarning ? 'text-error animate-pulse' : 'text-emerald-900'}`}>
             <span>{formatTime(secondsRemaining).split(':')[0]}</span>
             <span className="text-secondary animate-pulse">:</span>

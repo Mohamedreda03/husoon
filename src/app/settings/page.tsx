@@ -2,21 +2,18 @@
 
 import { useUser } from '@/hooks/useUser';
 import { useTodayPlan } from '@/hooks/useTodayPlan';
-import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { updateUserProfile, getUserLogs } from '@/lib/appwrite/database';
-import { parseMemorizedRanges, serializeMemorizedRanges, addMemorizedRange, removeMemorizedRange, getTotalMemorizedPages, getJuzMemorizationPercent, JUZ_START_PAGES } from '@/lib/husoon/memorization';
-import { DailyGoalType, DAILY_GOAL_OPTIONS, MemorizedRange, getPagesPerDayFromGoalType } from '@/lib/husoon/types';
+import { parseMemorizedRanges, serializeMemorizedRanges, addMemorizedRange, removeMemorizedRange, getTotalMemorizedPages } from '@/lib/husoon/memorization';
+import { DailyGoalType, DAILY_GOAL_OPTIONS, MemorizedRange, getPagesPerDayFromGoalType, CustomGoalUnit } from '@/lib/husoon/types';
 import { getPageInfo } from '@/data/quranPages';
 import { 
-  Settings as SettingsIcon, 
   Shield, 
   Trash2, 
   LogOut, 
   ShieldAlert,
-  Save,
   Edit2,
   BookOpen,
   Download,
@@ -25,6 +22,25 @@ import {
   Check,
   Target,
 } from 'lucide-react';
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function SettingsPage() {
   const { user, logout, isLoading: isUserLoading } = useUser();
@@ -39,17 +55,22 @@ export default function SettingsPage() {
 
   // Daily goal state
   const [dailyGoalType, setDailyGoalType] = useState<DailyGoalType>('page');
+  const [customGoalValue, setCustomGoalValue] = useState<number>(1);
+  const [dailyGoalUnit, setDailyGoalUnit] = useState<CustomGoalUnit>('face');
 
   // Edit name state
   const [isEditingName, setIsEditingName] = useState(false);
   const [editedName, setEditedName] = useState('');
 
   const [isSaving, setIsSaving] = useState(false);
+  const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
 
   useEffect(() => {
     if (profile) {
       setRanges(parseMemorizedRanges(profile.memorizedRanges));
       setDailyGoalType((profile.dailyGoalType as DailyGoalType) || 'page');
+      setCustomGoalValue(profile.dailyGoalValue || 1);
+      setDailyGoalUnit((profile.dailyGoalUnit as CustomGoalUnit) || 'face');
       setEditedName(user?.name || '');
     }
   }, [profile, user]);
@@ -85,12 +106,13 @@ export default function SettingsPage() {
     if (!profile) return;
     setIsSaving(true);
     try {
-      const pagesPerDay = getPagesPerDayFromGoalType(dailyGoalType);
+      const pagesPerDay = getPagesPerDayFromGoalType(dailyGoalType, customGoalValue, dailyGoalUnit);
       const totalMemorized = getTotalMemorizedPages(ranges);
       await updateUserProfile(profile.$id, {
         memorizedRanges: serializeMemorizedRanges(ranges),
         dailyGoalType: dailyGoalType,
-        dailyGoalValue: pagesPerDay,
+        dailyGoalValue: customGoalValue,
+        dailyGoalUnit: dailyGoalUnit,
         pagesDone: totalMemorized,
         pagesPerDay: pagesPerDay,
       });
@@ -122,7 +144,6 @@ export default function SettingsPage() {
 
   const handleResetProgress = async () => {
     if (!profile) return;
-    if (!window.confirm("ستفقد جميع بيانات الحفظ الخاصة بك. هل أنت متأكد؟")) return;
     
     try {
       await updateUserProfile(profile.$id, {
@@ -176,14 +197,16 @@ export default function SettingsPage() {
                 <div>
                   {isEditingName ? (
                     <div className="flex items-center gap-2 justify-center">
-                      <input
+                      <Input
                         type="text"
                         value={editedName}
                         onChange={(e) => setEditedName(e.target.value)}
-                        className="px-3 py-1 bg-surface-container-lowest rounded-lg border border-primary/20 text-center font-sans font-bold text-primary focus:outline-none focus:ring-2 focus:ring-primary"
+                        className="w-48 h-9 text-center font-sans font-bold text-primary focus-visible:ring-primary"
                         autoFocus
                       />
-                      <button
+                      <Button
+                        size="icon"
+                        className="h-9 w-9"
                         onClick={async () => {
                           if (profile && editedName.trim()) {
                             try {
@@ -193,11 +216,17 @@ export default function SettingsPage() {
                             } catch { toast.error('فشل في تحديث الاسم'); }
                           }
                         }}
-                        className="p-1 bg-primary text-white rounded-lg"
                       >
                         <Check className="w-4 h-4" />
-                      </button>
-                      <button onClick={() => setIsEditingName(false)} className="p-1 bg-error/10 text-error rounded-lg"><X className="w-4 h-4" /></button>
+                      </Button>
+                      <Button 
+                        size="icon"
+                        variant="ghost"
+                        className="h-9 w-9 text-error hover:text-error hover:bg-error/10"
+                        onClick={() => setIsEditingName(false)}
+                      >
+                        <X className="w-4 h-4" />
+                      </Button>
                     </div>
                   ) : (
                     <h3 className="font-sans font-bold text-xl text-primary">{user?.name || 'مستخدم'}</h3>
@@ -291,20 +320,30 @@ export default function SettingsPage() {
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-1">
                         <label className="font-sans text-xs text-on-surface-variant">من صفحة</label>
-                        <input type="number" min={1} max={604} value={newRangeFrom} onChange={(e) => setNewRangeFrom(Number(e.target.value))}
-                          className="w-full h-12 px-3 bg-surface rounded-xl border border-primary/10 focus:ring-2 focus:ring-primary font-sans outline-none"
+                        <Input 
+                          type="number" 
+                          min={1} 
+                          max={604} 
+                          value={newRangeFrom || ''} 
+                          onChange={(e) => setNewRangeFrom(e.target.value === '' ? 0 : Number(e.target.value))}
+                          className="h-10 text-center font-sans focus-visible:ring-primary"
                         />
                       </div>
                       <div className="space-y-1">
                         <label className="font-sans text-xs text-on-surface-variant">إلى صفحة</label>
-                        <input type="number" min={1} max={604} value={newRangeTo} onChange={(e) => setNewRangeTo(Number(e.target.value))}
-                          className="w-full h-12 px-3 bg-surface rounded-xl border border-primary/10 focus:ring-2 focus:ring-primary font-sans outline-none"
+                        <Input 
+                          type="number" 
+                          min={1} 
+                          max={604} 
+                          value={newRangeTo || ''} 
+                          onChange={(e) => setNewRangeTo(e.target.value === '' ? 0 : Number(e.target.value))}
+                          className="h-10 text-center font-sans focus-visible:ring-primary"
                         />
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <button onClick={handleAddRange} className="flex-1 py-2 bg-primary text-white font-bold rounded-xl text-sm">إضافة</button>
-                      <button onClick={() => setShowAddRange(false)} className="px-4 py-2 bg-surface-container text-on-surface-variant rounded-xl text-sm">إلغاء</button>
+                      <Button onClick={handleAddRange} className="flex-1 font-bold">إضافة</Button>
+                      <Button variant="outline" onClick={() => setShowAddRange(false)} className="px-4">إلغاء</Button>
                     </div>
                   </div>
                 ) : (
@@ -334,7 +373,15 @@ export default function SettingsPage() {
                   <h3 className="font-sans font-bold text-lg">الوتيرة اليومية للحفظ</h3>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-amber-900 text-sm font-sans flex items-start gap-3">
+                  <ShieldAlert className="w-5 h-5 shrink-0 mt-0.5" />
+                  <div>
+                    <p className="font-bold mb-1">تنبيه حول &quot;وحدة الحفظ&quot;:</p>
+                    <p>المقصود بالوحدة هنا هو &quot;وجه&quot; واحد من المصحف (Front Page). فالمصحف يتكون من صفحات، وكل صفحة لها وجهان. النظام يعتمد الوجه الواحد كوحدة قياس أساسية.</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 gap-3">
                   {DAILY_GOAL_OPTIONS.map((option) => (
                     <button
                       key={option.type}
@@ -353,13 +400,62 @@ export default function SettingsPage() {
                   ))}
                 </div>
 
+                {dailyGoalType === 'custom' && (
+                  <div className="bg-surface-container-lowest p-6 rounded-xl border border-primary/10 space-y-4 animate-in fade-in slide-in-from-top-2">
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+                      <div className="flex flex-col gap-1 w-full sm:w-auto">
+                        <label className="font-sans font-bold text-sm text-primary">الكمية اليومية المخصصة</label>
+                        <Select 
+                          value={dailyGoalUnit}
+                          onValueChange={(value) => setDailyGoalUnit(value as CustomGoalUnit)}
+                          dir="rtl"
+                        >
+                          <SelectTrigger className="w-full sm:w-32 h-10 font-sans text-sm border-primary/10">
+                            <SelectValue placeholder="اختر الوحدة" />
+                          </SelectTrigger>
+                          <SelectContent className="font-sans">
+                            <SelectItem value="face">وجه</SelectItem>
+                            <SelectItem value="page">صفحة كاملة</SelectItem>
+                            <SelectItem value="quarter">ربع حزب</SelectItem>
+                            <SelectItem value="verse">آية</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <Button 
+                          size="icon"
+                          variant="outline"
+                          className="h-8 w-8 rounded-full"
+                          onClick={() => setCustomGoalValue(Math.max(0, customGoalValue - 0.5))}
+                        >-</Button>
+                        <Input 
+                          type="number" 
+                          step="0.1"
+                          min="0"
+                          value={customGoalValue || ''} 
+                          onChange={(e) => setCustomGoalValue(e.target.value === '' ? 0 : Number(e.target.value))}
+                          className="w-16 h-10 text-center font-sans font-bold text-primary focus-visible:ring-primary"
+                        />
+                        <Button 
+                          size="icon"
+                          variant="outline"
+                          className="h-8 w-8 rounded-full"
+                          onClick={() => setCustomGoalValue(customGoalValue + 0.5)}
+                        >+</Button>
+                      </div>
+                    </div>
+                    <p className="text-xs text-on-surface-variant font-sans">تنبيه: سيتم حساب عدد الصفحات لكل يوم بناءً على هذا الرقم.</p>
+                  </div>
+                )}
+
                 {dailyGoalType && (
                   <div className="bg-primary/5 rounded-xl p-3 text-center">
                     <p className="font-sans text-xs text-on-surface-variant">
                       الموعد المتوقع لختم القرآن: <span className="font-bold text-primary">
                         {(() => {
                           const remaining = 604 - totalPages;
-                          const ppd = getPagesPerDayFromGoalType(dailyGoalType);
+                          const ppd = getPagesPerDayFromGoalType(dailyGoalType, customGoalValue, dailyGoalUnit);
+                          if (ppd <= 0) return 'حدد الكمية للحساب...';
                           const days = Math.ceil(remaining / ppd);
                           if (days <= 0) return 'تم بحمد الله! 🎉';
                           const months = Math.floor(days / 30);
@@ -381,20 +477,43 @@ export default function SettingsPage() {
                 </div>
 
                 <div className="pt-2 flex flex-col sm:flex-row justify-between items-center gap-4">
-                  <button 
-                    onClick={handleResetProgress}
-                    className="text-error font-sans font-bold text-sm hover:underline flex items-center gap-1"
-                  >
-                    <ShieldAlert className="w-4 h-4" />
-                    إعادة تعيين التقدم
-                  </button>
-                  <button 
+                  <AlertDialog open={isResetDialogOpen} onOpenChange={setIsResetDialogOpen}>
+                    <button 
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setIsResetDialogOpen(true);
+                      }}
+                      className="text-error font-sans font-bold text-sm hover:underline flex items-center gap-1"
+                    >
+                      <ShieldAlert className="w-4 h-4" />
+                      إعادة تعيين التقدم
+                    </button>
+                    <AlertDialogContent dir="rtl" className="font-sans">
+                      <AlertDialogHeader className="text-right">
+                        <AlertDialogTitle>هل أنت متأكد تماماً؟</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          هذا الإجراء لا يمكن التراجع عنه. سيتم مسح جميع بيانات الحفظ والسجلات الخاصة بك والبدء من جديد.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter className="flex-row-reverse gap-2">
+                        <AlertDialogAction
+                          onClick={handleResetProgress}
+                          className="bg-error hover:bg-error/90 text-white"
+                        >
+                          تأكيد المسح
+                        </AlertDialogAction>
+                        <AlertDialogCancel>إلغاء</AlertDialogCancel>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                  <Button 
                     onClick={handleSaveAll}
                     disabled={isSaving}
-                    className="w-full sm:w-auto px-8 py-3 bg-primary text-white font-sans font-bold rounded-xl shadow-lg hover:bg-emerald-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+                    size="lg"
+                    className="w-full sm:w-auto px-8 font-bold shadow-lg"
                   >
                     {isSaving ? '...جاري الحفظ' : 'حفظ التغييرات'}
-                  </button>
+                  </Button>
                 </div>
               </section>
 

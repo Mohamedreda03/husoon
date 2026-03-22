@@ -193,7 +193,7 @@ export function QuranSearch({ className, variant = 'default' }: QuranSearchProps
       {isOpen && results.length > 0 && (
         <div className={cn(
           "absolute z-50 mt-2 w-full overflow-hidden rounded-2xl border border-primary/10 bg-surface-bright shadow-xl animate-in fade-in zoom-in duration-200",
-          variant === 'navbar' && "right-0 w-[320px] md:w-[400px]"
+          variant === 'navbar' && "right-0 w-[280px] sm:w-[320px] md:w-[400px]"
         )}>
           <div className="max-h-[400px] overflow-y-auto p-2">
             {results.map((result, idx) => (

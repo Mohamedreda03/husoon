@@ -5,7 +5,7 @@ import { useUser } from './useUser';
 import { getUserLogs, getUserProfile } from '@/lib/appwrite/database';
 import { estimateCompletionDate } from '@/lib/husoon/calculator';
 import { parseMemorizedRanges, getTotalMemorizedPages, getMemorizedJuz } from '@/lib/husoon/memorization';
-import { getPagesPerDayFromGoalType, DailyGoalType, UserProgress } from '@/lib/husoon/types';
+import { getPagesPerDayFromGoalType, DailyGoalType, UserProgress, CustomGoalUnit, getTrackingModeFromUnit } from '@/lib/husoon/types';
 
 export function useStats() {
   const { user } = useUser();
@@ -28,18 +28,25 @@ export function useStats() {
       const completionPercentage = Math.round((pagesDone / totalPages) * 100);
       const remainingPages = totalPages - pagesDone;
       const goalType = (profile.dailyGoalType as DailyGoalType) || 'page';
-      const pagesPerDay = getPagesPerDayFromGoalType(goalType);
+      const goalUnit = (profile.dailyGoalUnit as CustomGoalUnit) || 'face';
+      const pagesPerDay = getPagesPerDayFromGoalType(
+        goalType, 
+        profile.dailyGoalValue,
+        goalUnit
+      );
 
       const progress: UserProgress = {
         memorizedRanges: ranges,
         dailyGoalType: goalType,
         dailyGoalValue: profile.dailyGoalValue || 1,
+        dailyGoalUnit: goalUnit,
         pagesDone,
         pagesPerDay,
         startPage: profile.startPage || 1,
       };
 
       const estimatedCompletion = estimateCompletionDate(progress);
+      const trackingMode = getTrackingModeFromUnit(goalUnit);
 
       // Calculate total minutes from logs
       const totalMinutes = logs.reduce((acc, log) => acc + (log.totalMinutes || 0), 0);
@@ -54,6 +61,7 @@ export function useStats() {
         estimatedCompletion,
         totalMinutes,
         totalTasks,
+        trackingMode,
         streakCount: profile.streakCount || 0,
         logs: logs.slice(0, 30),
         totalJuz: memorizedJuz.length,

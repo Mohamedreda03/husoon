@@ -32,8 +32,7 @@ export function calculateFarReviewSchedule(progress: UserProgress): FarReviewSch
       estimatedMinutes: count // 1 minute per page for review
     });
     
-    dayIndex--;
-    if (dayIndex < 0) dayIndex = 6;
+    dayIndex = (dayIndex + 1) % 7;
   }
   
   return schedule;

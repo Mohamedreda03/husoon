@@ -13,6 +13,7 @@ export interface UserProfile extends Models.Document {
   memorizedRanges: string; // JSON string: MemorizedRange[]
   dailyGoalType: string; // DailyGoalType
   dailyGoalValue: number;
+  dailyGoalUnit: 'face' | 'page' | 'quarter' | 'verse';
   timezone: string;
 }
 

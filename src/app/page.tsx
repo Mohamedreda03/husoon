@@ -22,6 +22,7 @@ import {
   getPagesPerDayFromGoalType,
   DailyGoalType,
   UserProgress,
+  CustomGoalUnit,
 } from "@/lib/husoon/types";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
@@ -39,7 +40,9 @@ export default function DashboardPage() {
   const ranges = profile ? parseMemorizedRanges(profile.memorizedRanges) : [];
   const totalMemorized = getTotalMemorizedPages(ranges);
   const goalType = (profile?.dailyGoalType as DailyGoalType) || "page";
-  const pagesPerDay = getPagesPerDayFromGoalType(goalType);
+  const goalUnit = (profile?.dailyGoalUnit as CustomGoalUnit) || "face";
+  const trackingMode = plan?.trackingMode || "page";
+  const pagesPerDay = getPagesPerDayFromGoalType(goalType, profile?.dailyGoalValue, goalUnit);
 
   // Estimated completion
   const estimatedCompletion = useMemo(() => {
@@ -48,12 +51,13 @@ export default function DashboardPage() {
       memorizedRanges: ranges,
       dailyGoalType: goalType,
       dailyGoalValue: profile.dailyGoalValue || 1,
+      dailyGoalUnit: goalUnit,
       pagesDone: totalMemorized,
       pagesPerDay,
       startPage: profile.startPage || 1,
     };
     return estimateCompletionDate(progress);
-  }, [profile, ranges, goalType, pagesPerDay, totalMemorized]);
+  }, [profile, ranges, goalType, goalUnit, pagesPerDay, totalMemorized]);
 
   // Daily hadith
   const dailyHadith = getDailyHadith();
@@ -116,6 +120,7 @@ export default function DashboardPage() {
             onFinishDay={handleFinishDay}
             isDayDone={isDayDone}
             isFinishing={isFinishing}
+            trackingMode={trackingMode}
           />
         </div>
         <div className="lg:col-span-4">

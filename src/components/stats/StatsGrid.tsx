@@ -76,7 +76,14 @@ export function StatsGrid({ stats }: StatsGridProps) {
           <div className="w-full bg-primary-container h-1.5 rounded-full overflow-hidden">
             <div className="bg-secondary-fixed-dim h-full" style={{ width: `${stats.completionPercentage}%` }}></div>
           </div>
-          <p className="text-[10px] mt-2 font-sans opacity-70">متبقي {Math.ceil(stats.remainingPages / 20)} أجزاء لختم القرآن الكريم</p>
+          <div className="flex justify-between items-center mt-2">
+            <p className="text-[10px] font-sans opacity-70">متبقي {Math.ceil(stats.remainingPages / 20)} أجزاء للختم</p>
+            {stats.totalJuz < 30 && (
+              <p className="text-[10px] font-sans font-bold text-secondary-fixed">
+                بقي {5 - (stats.totalJuz % 5)} أجزاء للوسام القادم
+              </p>
+            )}
+          </div>
         </div>
       </div>
     </section>

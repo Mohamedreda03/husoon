@@ -30,16 +30,16 @@ export function WeeklyPlan({
 
   const strategies = [
     {
-      title: "التركيز على مراجعة البعيد",
-      desc: "تقليل الأخطاء في المحفوظ القديم لضمان رسوخه",
-    },
-    {
       title: "التحضير الأسبوعي",
       desc: `اقرأ 7 صفحات القادمة (من ${currentPage + 1} إلى ${Math.min(604, currentPage + 7)}) مرة واحدة يومياً`,
     },
     {
       title: "التحضير الليلي",
       desc: `استمع لصفحة الغد (صفحة ${Math.min(604, currentPage + 1)}) بتركيز تام قبل النوم`,
+    },
+    {
+      title: "التركيز على مراجعة البعيد",
+      desc: "تقليل الأخطاء في المحفوظ القديم لضمان رسوخه",
     },
   ];
 
@@ -64,7 +64,7 @@ export function WeeklyPlan({
               <p className="font-sans text-xs opacity-70 mt-1 text-surface">
                 {strategy.desc}
               </p>
-              {i === 1 && (
+              {i === 0 && (
                 <ReferenceBadge
                   reference={weeklyReference}
                   title="التحضير الأسبوعي"
@@ -72,7 +72,7 @@ export function WeeklyPlan({
                   compact
                 />
               )}
-              {i === 2 && (
+              {i === 1 && (
                 <ReferenceBadge
                   reference={nightlyReference}
                   title="التحضير الليلي"

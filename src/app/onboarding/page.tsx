@@ -9,11 +9,21 @@ import { useUser } from "@/hooks/useUser";
 import { Query, ID } from "appwrite";
 import { ArrowLeft, Plus, X } from "lucide-react";
 import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   DailyGoalType,
   DAILY_GOAL_OPTIONS,
   MemorizedRange,
   getPagesPerDayFromGoalType,
+  CustomGoalUnit,
 } from "@/lib/husoon/types";
 import {
   addMemorizedRange,
@@ -26,6 +36,8 @@ export default function OnboardingPage() {
   const [step, setStep] = useState(1);
   const [ranges, setRanges] = useState<MemorizedRange[]>([]);
   const [dailyGoalType, setDailyGoalType] = useState<DailyGoalType>("page");
+  const [customGoalValue, setCustomGoalValue] = useState<number>(1);
+  const [dailyGoalUnit, setDailyGoalUnit] = useState<CustomGoalUnit>('face');
   const [showAddRange, setShowAddRange] = useState(false);
   const [newRangeFrom, setNewRangeFrom] = useState(1);
   const [newRangeTo, setNewRangeTo] = useState(20);
@@ -68,8 +80,8 @@ export default function OnboardingPage() {
     if (!user) return;
     setIsSubmitting(true);
     try {
-      const pagesPerDay = getPagesPerDayFromGoalType(dailyGoalType);
-      const profiles = await databases.listDocuments(
+      const pagesPerDay = getPagesPerDayFromGoalType(dailyGoalType, customGoalValue, dailyGoalUnit);
+      const profiles = await databases.listDocuments<import("@/lib/appwrite/database").UserProfile>(
         APPWRITE_CONFIG.databaseId,
         APPWRITE_CONFIG.collections.users,
         [Query.equal("userId", user.$id)],
@@ -83,7 +95,8 @@ export default function OnboardingPage() {
           {
             memorizedRanges: serializeMemorizedRanges(ranges),
             dailyGoalType: dailyGoalType,
-            dailyGoalValue: pagesPerDay,
+            dailyGoalValue: customGoalValue,
+            dailyGoalUnit: dailyGoalUnit,
             pagesDone: totalPages,
             pagesPerDay: pagesPerDay,
           },
@@ -99,7 +112,8 @@ export default function OnboardingPage() {
             name: user.name,
             memorizedRanges: serializeMemorizedRanges(ranges),
             dailyGoalType: dailyGoalType,
-            dailyGoalValue: pagesPerDay,
+            dailyGoalValue: customGoalValue,
+            dailyGoalUnit: dailyGoalUnit,
             pagesDone: totalPages,
             pagesPerDay: pagesPerDay,
             streakCount: 0,
@@ -243,28 +257,26 @@ export default function OnboardingPage() {
                       <label className="font-sans text-xs text-on-surface-variant">
                         من صفحة
                       </label>
-                      <input
-                        type="number"
-                        min={1}
-                        max={604}
-                        value={newRangeFrom}
-                        onChange={(e) =>
-                          setNewRangeFrom(Number(e.target.value))
-                        }
-                        className="w-full h-12 px-3 bg-surface-container-lowest rounded-xl border border-primary/10 focus:ring-2 focus:ring-primary font-sans outline-none"
+                      <Input 
+                        type="number" 
+                        min={1} 
+                        max={604} 
+                        value={newRangeFrom || ''} 
+                        onChange={(e) => setNewRangeFrom(e.target.value === '' ? 0 : Number(e.target.value))}
+                        className="h-10 text-center font-sans focus-visible:ring-primary"
                       />
                     </div>
                     <div className="space-y-1">
                       <label className="font-sans text-xs text-on-surface-variant">
                         إلى صفحة
                       </label>
-                      <input
-                        type="number"
-                        min={1}
-                        max={604}
-                        value={newRangeTo}
-                        onChange={(e) => setNewRangeTo(Number(e.target.value))}
-                        className="w-full h-12 px-3 bg-surface-container-lowest rounded-xl border border-primary/10 focus:ring-2 focus:ring-primary font-sans outline-none"
+                      <Input 
+                        type="number" 
+                        min={1} 
+                        max={604} 
+                        value={newRangeTo || ''} 
+                        onChange={(e) => setNewRangeTo(e.target.value === '' ? 0 : Number(e.target.value))}
+                        className="h-10 text-center font-sans focus-visible:ring-primary"
                       />
                     </div>
                   </div>
@@ -297,7 +309,7 @@ export default function OnboardingPage() {
                 <p className="font-sans text-xs text-on-surface-variant font-bold text-center">
                   اختصارات سريعة
                 </p>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 xs:grid-cols-3 gap-3">
                   <button
                     onClick={() => handleQuickAdd(582, 604)}
                     className="py-3 px-4 rounded-xl bg-surface-container-low text-on-surface-variant text-xs font-bold font-sans hover:bg-surface-container transition-colors border border-primary/5"
@@ -340,51 +352,114 @@ export default function OnboardingPage() {
           )}
 
           {step === 2 && (
-            <div className="animate-in fade-in slide-in-from-right-8 duration-500">
-              <div className="text-center space-y-4 mb-12">
-                <h2 className="font-serif text-3xl md:text-4xl text-on-surface font-bold">
-                  ما هي وتيرة الحفظ اليومية؟
-                </h2>
-                <p className="font-sans text-on-surface-variant text-lg">
-                  بناءً على هذا المعدل سيتم اقتراح مهامك اليومية
-                </p>
-              </div>
-              <div className="grid grid-cols-2 gap-4 max-w-sm mx-auto">
-                {DAILY_GOAL_OPTIONS.map((option) => (
-                  <button
-                    key={option.type}
-                    onClick={() => setDailyGoalType(option.type)}
-                    className={`py-6 px-4 rounded-2xl flex flex-col items-center gap-2 transition-all font-sans font-bold ${dailyGoalType === option.type ? "bg-primary text-on-primary shadow-lg scale-105" : "bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high border border-outline/10"}`}
-                  >
-                    <span
-                      className={`text-lg ${dailyGoalType === option.type ? "text-secondary-fixed" : "text-primary"}`}
-                    >
-                      {option.label}
-                    </span>
-                    <span className="text-xs opacity-80">
-                      {option.description}
-                    </span>
-                  </button>
-                ))}
-              </div>
+            <div className="animate-in fade-in slide-in-from-right-8 duration-500 space-y-12">
+              {/* Daily Goal */}
+              <div className="space-y-6">
+                <div className="text-center space-y-4">
+                  <h2 className="font-serif text-3xl md:text-4xl text-on-surface font-bold">
+                    ما هي وتيرة الحفظ اليومية؟
+                  </h2>
+                  <p className="font-sans text-on-surface-variant text-lg">
+                    بناءً على هذا المعدل سيتم اقتراح مهامك اليومية
+                  </p>
+                </div>
 
-              {/* Estimated completion */}
-              <div className="bg-primary/5 rounded-xl p-4 mt-8 text-center max-w-sm mx-auto">
-                <p className="font-sans text-xs text-on-surface-variant">
-                  الموعد المتوقع لختم القرآن:{" "}
-                  <span className="font-bold text-primary">
-                    {(() => {
-                      const remaining = 604 - totalPages;
-                      const ppd = getPagesPerDayFromGoalType(dailyGoalType);
-                      const days = Math.ceil(remaining / ppd);
-                      if (days <= 0) return "تم بحمد الله! 🎉";
-                      const months = Math.floor(days / 30);
-                      const remDays = days % 30;
-                      if (months > 0) return `${months} شهر و ${remDays} يوم`;
-                      return `${days} يوم`;
-                    })()}
-                  </span>
-                </p>
+                <div className="bg-amber-50 border border-amber-100 rounded-2xl p-5 text-amber-900 text-sm font-sans max-w-sm mx-auto flex items-start gap-3">
+                  <div className="mt-1 bg-amber-200 text-amber-900 rounded-full p-1 leading-none">ℹ️</div>
+                  <div>
+                    <p className="font-bold mb-1">تنبيه حول &quot;وحدة الحفظ&quot;:</p>
+                    <p className="leading-relaxed text-xs">المقصود بالوحدة هنا هو &quot;وجه&quot; واحد من المصحف (Front Page). فكل ورقة لها وجهان، والنظام يعتمد الوجه الواحد كوحدة قياس أساسية.</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 xs:grid-cols-2 gap-4 max-w-sm mx-auto">
+                  {DAILY_GOAL_OPTIONS.map((option) => (
+                    <button
+                      key={option.type}
+                      onClick={() => setDailyGoalType(option.type)}
+                      className={`py-6 px-4 rounded-2xl flex flex-col items-center gap-2 transition-all font-sans font-bold ${dailyGoalType === option.type ? "bg-primary text-on-primary shadow-lg scale-105" : "bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high border border-outline/10"}`}
+                    >
+                      <span
+                        className={`text-lg ${dailyGoalType === option.type ? "text-secondary-fixed" : "text-primary"}`}
+                      >
+                        {option.label}
+                      </span>
+                      <span className="text-xs opacity-80">
+                        {option.description}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+
+                {dailyGoalType === 'custom' && (
+                  <div className="bg-surface-container-lowest p-6 rounded-xl border border-primary/10 space-y-4 max-w-sm mx-auto mt-6 animate-in fade-in slide-in-from-top-2">
+                    <div className="flex flex-col gap-4">
+                      <div className="flex flex-col gap-1 w-full">
+                        <label className="font-sans font-bold text-sm text-primary text-right">الكمية اليومية المخصصة</label>
+                        <Select 
+                          value={dailyGoalUnit}
+                          onValueChange={(value) => setDailyGoalUnit(value as CustomGoalUnit)}
+                          dir="rtl"
+                        >
+                          <SelectTrigger className="w-full h-10 font-sans text-sm border-primary/10">
+                            <SelectValue placeholder="اختر الوحدة" />
+                          </SelectTrigger>
+                          <SelectContent className="font-sans">
+                            <SelectItem value="face">وجه</SelectItem>
+                            <SelectItem value="page">صفحة كاملة</SelectItem>
+                            <SelectItem value="quarter">ربع حزب</SelectItem>
+                            <SelectItem value="verse">آية</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <Button 
+                            size="icon"
+                            variant="outline"
+                            className="h-8 w-8 rounded-full"
+                            onClick={() => setCustomGoalValue(Math.max(0, customGoalValue - 0.5))}
+                          >-</Button>
+                          <Input 
+                            type="number" 
+                            step="0.1"
+                            min="0"
+                            value={customGoalValue || ''} 
+                            onChange={(e) => setCustomGoalValue(e.target.value === '' ? 0 : Number(e.target.value))}
+                            className="w-16 h-10 text-center font-sans font-bold text-primary focus-visible:ring-primary"
+                          />
+                          <Button 
+                            size="icon"
+                            variant="outline"
+                            className="h-8 w-8 rounded-full"
+                            onClick={() => setCustomGoalValue(customGoalValue + 0.5)}
+                          >+</Button>
+                        </div>
+                        <span className="font-sans text-xs text-on-surface-variant">الكمية</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Estimated completion */}
+                <div className="bg-primary/5 rounded-xl p-4 mt-8 text-center max-w-sm mx-auto">
+                  <p className="font-sans text-xs text-on-surface-variant">
+                    الموعد المتوقع لختم القرآن:{" "}
+                    <span className="font-bold text-primary">
+                      {(() => {
+                        const remaining = 604 - totalPages;
+                        const ppd = getPagesPerDayFromGoalType(dailyGoalType, customGoalValue, dailyGoalUnit);
+                        if (ppd <= 0) return "حدد الكمية للحساب...";
+                        const days = Math.ceil(remaining / ppd);
+                        if (days <= 0) return "تم بحمد الله! 🎉";
+                        const months = Math.floor(days / 30);
+                        const remDays = days % 30;
+                        if (months > 0) return `${months} شهر و ${remDays} يوم`;
+                        return `${days} يوم`;
+                      })()}
+                    </span>
+                  </p>
+                </div>
               </div>
             </div>
           )}

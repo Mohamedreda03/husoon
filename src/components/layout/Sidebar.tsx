@@ -5,11 +5,18 @@ import { usePathname } from 'next/navigation';
 import { LayoutDashboard, CalendarDays, EyeOff, TrendingUp, Settings, BookOpenText } from 'lucide-react';
 import { useUser } from '@/hooks/useUser';
 import { useTodayPlan } from '@/hooks/useTodayPlan';
+import { useStats } from '@/hooks/useStats';
+import { getLatestAchievement } from '@/lib/husoon/achievements';
 
 export function Sidebar() {
   const pathname = usePathname();
   const { user } = useUser();
   const { profile } = useTodayPlan();
+  const { data: stats } = useStats();
+
+  const latestBadge = stats 
+    ? getLatestAchievement(stats.memorizedRanges, stats.totalJuz, stats.pagesDone, stats.streakCount)
+    : 'مبتدئ مبارك';
 
   if (pathname === '/login' || pathname === '/register') {
     return null;
@@ -67,7 +74,7 @@ export function Sidebar() {
               {user?.name || 'مستخدم'}
             </p>
             <p className="text-emerald-400 text-xs">
-              {profile?.streakCount ? `متصل لـ ${profile.streakCount} أيام` : 'حافظ متقن'}
+              {profile?.streakCount ? `متصل لـ ${profile.streakCount} أيام` : latestBadge}
             </p>
           </div>
         </div>

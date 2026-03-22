@@ -67,6 +67,7 @@ const COLLECTIONS: Record<string, CollectionConfig> = {
       { key: 'memorizedRanges', type: 'string', size: 5000, required: false, default: '[]' },
       { key: 'dailyGoalType', type: 'string', size: 20, required: false, default: 'page' },
       { key: 'dailyGoalValue', type: 'integer', required: false, default: 1, min: 0, max: 100 },
+      { key: 'dailyGoalUnit', type: 'string', size: 20, required: false, default: 'face' },
       { key: 'timezone', type: 'string', size: 100, required: true },
     ],
     indexes: [

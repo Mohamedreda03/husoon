@@ -21,8 +21,7 @@ export function TaskList({ tasks, completedTaskIds, onToggleTask }: TaskListProp
     router.push('/timer');
   };
 
-  const timeWeight = { morning: 0, anytime: 1, evening: 2, night: 3 };
-  const sortedTasks = [...tasks].sort((a, b) => timeWeight[a.timeOfDay] - timeWeight[b.timeOfDay]);
+  const sortedTasks = [...tasks].sort((a, b) => a.fortressNumber - b.fortressNumber);
 
   return (
     <div className="bg-surface-container-lowest rounded-3xl p-8 shadow-sm shadow-emerald-900/5 h-full">
